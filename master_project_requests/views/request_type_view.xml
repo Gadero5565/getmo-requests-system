@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View -->
+        <record id="view_request_type_form" model="ir.ui.view">
+            <field name="name">getmo.request.type.form</field>
+            <field name="model">getmo.request.type</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1 name="header_type">
+                                <field name="name" placeholder="Request type name..."/>
+                            </h1>
+                        </div>
+                        <group>
+                            <field name="code" placeholder="Request type code..."/>
+                            <field name="genre_id" placeholder="Request Genre..."
+                                   options="{'no_create': True, 'no_open': True, 'no_edit': True}"/>
+                        </group>
+                        <notebook>
+                            <page string="Categories" name="page_categories">
+                                <div class="alert alert-info" role="status" colspan="2">
+                                    <p>
+                                        Select the categories of the requests that apply to this type of request.
+                                    </p>
+                                </div>
+                                <field name="category_ids"
+                                       placeholder="Request categories..."/>
+                            </page>
+                            <page string="Responsible Employees" name="responsible_employees">
+                                <div class="alert alert-info" role="status" colspan="2">
+                                    <p>
+                                        Select the employees responsible for the requests.
+                                    </p>
+                                </div>
+                                <field name="responsible_employees_ids" widget="many2many_avatar_employee"/>
+                            </page>
+                            <page string="Description" name="page_description">
+                                <field name="description"
+                                       placeholder="Place category description here..."/>
+                            </page>
+                            <page string="Help" name="page_help">
+                                <separator colspan="4" string="Help"/>
+                                <field name="help_html"/>
+                            </page>
+                            <page name="extra_info" string="Extra Information">
+                                <group>
+                                    <field name="estimated_duration" widget="float_time"/>
+                                    <field name="attachment_setting_state" widget="radio"/>
+                                    <field name="result_type" widget="radio"/>
+                                    <field name="report_needed" widget="boolean_toggle"/>
+                                    <field name="sequence_id" placeholder="Ticket numbering sequence..."
+                                           options="{'no_create': True,'no_edit': True}"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View -->
+        <record id="view_request_type_tree" model="ir.ui.view">
+            <field name="name">getmo.request.type.tree</field>
+            <field name="model">getmo.request.type</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="category_ids"
+                           widget="many2many_tags"/>
+                    <field name="genre_id"/>
+                    <field name="request_count"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_request_type_search" model="ir.ui.view">
+            <field name="name">getmo.request.type.search</field>
+            <field name="model">getmo.request.type</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+
+                    <separator/>
+                    <field name="category_ids"/>
+
+                    <separator/>
+                    <field name="genre_id"/>
+
+                    <!-- Group by options -->
+                    <group expand="0" string="Group By">
+                        <filter string="Categories" name="group_category_ids"
+                                context="{'group_by':'category_ids'}"/>
+                        <filter string="Genre" name="group_genre_id"
+                                context="{'group_by':'genre_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_request_type_pivot" model="ir.ui.view">
+            <field name="name">getmo.request.type.pivot</field>
+            <field name="model">getmo.request.type</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="genre_id" type="col"/>
+                    <field name="category_ids" type="row"/>
+                    <field name="request_count" type="measure"/>
+                    <field name="attachment_setting_state" type="row"/>
+                    <field name="report_needed" type="row"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Graph View -->
+        <record id="view_request_type_graph" model="ir.ui.view">
+            <field name="name">getmo.request.type.graph</field>
+            <field name="model">getmo.request.type</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="genre_id" type="row"/>
+                    <field name="request_count" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Kanban View -->
+        <record id="view_request_type_kanban" model="ir.ui.view">
+            <field name="name">getmo.request.type.kanban</field>
+            <field name="model">getmo.request.type</field>
+            <field name="arch" type="xml">
+                <kanban class="custom-kanban">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="category_ids"/>
+                    <field name="genre_id"/>
+                    <field name="request_count"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div class="kanban-card mt-3 oe_kanban_global_click">
+                                <!-- Header -->
+                                <div class="kanban-header">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <strong class="kanban-type-title">
+                                            <field name="name"/>
+                                        </strong>
+                                    </div>
+                                </div>
+
+                                <!-- Badges for Category, Genre, Type -->
+                                <div class="kanban-badges">
+                                    <span class="kanban-badge badge-category">
+                                        <i class="fa fa-bars"></i>
+                                        <field name="category_ids"/>
+                                    </span>
+                                    <span class="kanban-badge badge-category">
+                                        <i class="fa fa-tag"></i>
+                                        <field name="genre_id"/>
+                                    </span>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="kanban-footer">
+                                    <div class="counter-badge">
+                                        <i class="fa fa-tasks counter-icon"/>
+                                        <span>Requests:</span>
+                                        <span class="counter-value" t-esc="record.request_count.value"/>
+                                    </div>
+                                    <div class="kanban-action-btn">
+                                        <i class="fa fa-chevron-right"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+    </data>
+</odoo>

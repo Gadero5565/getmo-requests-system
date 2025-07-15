@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View -->
+        <record id="view_request_category_form" model="ir.ui.view">
+            <field name="name">getmo.request.category.form</field>
+            <field name="model">getmo.request.category</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <div class="oe_title">
+                            <h1>
+                                <field name="name"
+                                       placeholder="Name..."
+                                       class="oe_inline"/>
+                            </h1>
+                        </div>
+                        <group>
+                            <field name="code"
+                                   placeholder="Code..."/>
+                            <field name="sequence"/>
+                            <field name="category_manager_id" options="{'no_create': True, 'no_open': True, 'no_edit': True}"/>
+                        </group>
+                        <notebook>
+                            <page string="Types" name="page_request_types">
+                                <field name="request_type_ids"/>
+                            </page>
+                            <page string="Description" name="page_description">
+                                <field name="description"
+                                       placeholder="Place category description here..."/>
+                            </page>
+                            <page string="Help" name="page_help">
+                                <separator colspan="4" string="Help"/>
+                                <field name="help_html"/>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View -->
+        <record id="view_request_category_tree" model="ir.ui.view">
+            <field name="name">getmo.request.category.tree</field>
+            <field name="model">getmo.request.category</field>
+            <field name="arch" type="xml">
+                <tree>
+                    <field name="sequence" widget="handle"/>
+                    <field name="display_name" string="Name"/>
+                    <field name="request_count"/>
+                    <field name="request_type_count"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_request_category_search" model="ir.ui.view">
+            <field name="name">getmo.request.category.search</field>
+            <field name="model">getmo.request.category</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="request_type_ids"/>
+                    <!-- Group by options -->
+                    <group expand="0" string="Group By">
+                        <filter string="Types" name="group_request_type_ids"
+                                context="{'group_by':'request_type_ids'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_request_category_pivot" model="ir.ui.view">
+            <field name="name">getmo.request.category.pivot</field>
+            <field name="model">getmo.request.category</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="category_manager_id" type="row"/>
+                    <field name="request_type_ids" type="col"/>
+                    <field name="request_count" type="measure"/>
+                    <field name="request_type_count" type="measure"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Graph View -->
+        <record id="view_request_category_graph" model="ir.ui.view">
+            <field name="name">getmo.request.category.graph</field>
+            <field name="model">getmo.request.category</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="category_manager_id" type="row"/>
+                    <field name="request_count" type="measure"/>
+                    <field name="request_type_count" type="measure"/>
+                </graph>
+            </field>
+        </record>
+
+        <!-- Kanban View -->
+        <record id="view_request_category_kanban" model="ir.ui.view">
+            <field name="name">getmo.request.category.kanban</field>
+            <field name="model">getmo.request.category</field>
+            <field name="arch" type="xml">
+                <kanban>
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="request_count"/>
+                    <field name="request_type_count"/>
+                    <field name="category_manager_id"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="kanban-card mt-3 oe_kanban_global_click">
+                                <!-- Header -->
+                                <div class="kanban-header">
+                                    <strong class="kanban-title">
+                                        <field name="name"/>
+                                    </strong>
+                                </div>
+
+                                <!-- Badges for Category, Genre, Type -->
+                                <div class="kanban-badges">
+                                    <div class="counter-badge">
+                                        <i class="fa fa-tasks counter-icon"/>
+                                        <span>Requests:</span>
+                                        <span class="counter-value">
+                                            <field name="request_count" widget="statinfo" nolabel="1"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <div class="kanban-badges">
+                                    <div class="counter-badge">
+                                        <i class="fa fa-list-alt counter-icon"/>
+                                        <span>Types:</span>
+                                        <span class="counter-value">
+                                            <field name="request_type_count" widget="statinfo" nolabel="1"/>
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="kanban-footer">
+                                    <div class="kanban-date">
+                                        <field name="category_manager_id" widget="many2one_avatar"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                </kanban>
+            </field>
+        </record>
+    </data>
+</odoo>

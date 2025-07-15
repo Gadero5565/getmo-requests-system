@@ -1,0 +1,610 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="extended_dashboard_manager_requests.RequestsManagerDashboardExtended" owl="1">
+        <div class="dashboard-container">
+            <!-- Loading State -->
+            <t t-if="state.loading">
+                <div class="dashboard-loading">
+                    <div class="loading-content">
+                        <div class="spinner"></div>
+                        <p>Loading dashboard data...</p>
+                    </div>
+                </div>
+            </t>
+
+            <!-- Error State -->
+            <t t-if="state.error">
+                <div class="dashboard-error">
+                    <div class="error-content">
+                        <i class="fa fa-exclamation-circle"></i>
+                        <div>
+                            <h3>Failed to load dashboard</h3>
+                            <p>Please try again later or contact support if the problem persists.</p>
+                        </div>
+                        <button class="btn-retry" t-on-click="() => this.loadData()">Retry</button>
+                    </div>
+                </div>
+            </t>
+
+            <!-- Main Dashboard Content -->
+            <t t-if="state.dashboardData and !state.loading">
+                <!-- Dashboard Header -->
+                <div class="dashboard-header">
+                    <div class="header-content">
+                        <div class="header-title">
+                            <h1>Requests Manager Dashboard</h1>
+                            <p class="subtitle">Overview of all request activities and performance
+                                metrics
+                            </p>
+                        </div>
+                        <div class="header-actions">
+                            <div class="last-updated">
+                                <i class="fa fa-clock"></i>
+                                <span>Last updated:
+                                    <t t-esc="state.dashboardData.last_updated"/>
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Key Metrics Section -->
+                <div class="metrics-grid">
+                    <t t-set="metrics" t-value="state.dashboardData.metrics"/>
+
+                    <!-- Total Requests Card -->
+                    <div class="metric-card card-total">
+                        <div class="card-content">
+                            <div class="card-title">Total Requests</div>
+                            <div class="card-value">
+                                <t t-esc="formatNumber(metrics.total_requests)"/>
+                            </div>
+                            <div class="card-trend"
+                                 t-att-class="metrics.trends.total_requests.direction === 'up' ? 'positive' : 'negative'">
+                                <i t-att-class="'fa fa-arrow-' + metrics.trends.total_requests.direction"/>
+                                <t t-esc="Math.abs(Math.round(metrics.trends.total_requests.percentage))"/>%
+                                <t t-esc="metrics.trends.total_requests.direction === 'up' ? 'increase' : 'decrease'"/>
+                                from
+                                <t t-esc="metrics.trends.total_requests.comparison"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Open Requests Card -->
+                    <div class="metric-card card-open">
+                        <div class="card-content">
+                            <div class="card-title">Open Requests</div>
+                            <div class="card-value">
+                                <t t-esc="formatNumber(metrics.open_requests)"/>
+                            </div>
+                            <div class="card-trend"
+                                 t-att-class="metrics.trends.open_requests.direction === 'up' ? 'positive' : 'negative'">
+                                <i t-att-class="'fa fa-arrow-' + metrics.trends.open_requests.direction"/>
+                                <t t-esc="Math.abs(Math.round(metrics.trends.open_requests.percentage))"/>%
+                                <t t-esc="metrics.trends.open_requests.direction === 'up' ? 'higher' : 'lower'"/>
+                                than
+                                <t t-esc="metrics.trends.open_requests.comparison"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Unassigned Requests Card -->
+                    <div class="metric-card card-unassigned">
+                        <div class="card-content">
+                            <div class="card-title">Unassigned Requests</div>
+                            <div class="card-value">
+                                <t t-esc="formatNumber(metrics.unassigned_requests)"/>
+                            </div>
+                            <div class="card-trend"
+                                 t-att-class="metrics.trends.unassigned_requests.direction === 'up' ? 'positive' : 'negative'">
+                                <i class="fa fa-plus-circle"/>
+                                <t t-esc="metrics.trends.unassigned_requests.new_today"/>
+                                new today
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Past Due -->
+<!--                    Need to add date deadline of requests first -->
+<!--                    <div class="metric-card card-past-due">-->
+<!--                        <div class="card-icon">-->
+<!--                            <i class="fa fa-exclamation-triangle"></i>-->
+<!--                        </div>-->
+<!--                        <div class="card-content">-->
+<!--                            <div class="card-title">Past Due</div>-->
+<!--                            <div class="card-value">-->
+<!--                                <t t-esc="formatNumber(metrics.requests_past_due)"/>-->
+<!--                            </div>-->
+<!--                            <div class="card-trend urgent">-->
+<!--                                <i class="fa fa-exclamation"></i>-->
+<!--                                Needs attention-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="card-wave"></div>-->
+<!--                    </div>-->
+
+                    <!-- Created Today Card -->
+                    <div class="metric-card card-created">
+                        <div class="card-content">
+                            <div class="card-title">Created Today</div>
+                            <div class="card-value">
+                                <t t-esc="formatNumber(metrics.requests_created_today)"/>
+                            </div>
+                            <div class="card-trend"
+                                 t-att-class="metrics.trends.created_today.direction === 'up' ? 'positive' : 'negative'">
+                                <i t-att-class="'fa fa-arrow-' + metrics.trends.created_today.direction"/>
+                                <t t-esc="Math.abs(Math.round(metrics.trends.created_today.percentage))"/>%
+                                <t t-esc="metrics.trends.created_today.direction === 'up' ? 'higher' : 'lower'"/>
+                                than
+                                <t t-esc="metrics.trends.created_today.comparison"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Completed Week Card -->
+                    <div class="metric-card card-completed">
+                        <div class="card-content">
+                            <div class="card-title">Completed This Week</div>
+                            <div class="card-value">
+                                <t t-esc="formatNumber(metrics.requests_completed_week)"/>
+                            </div>
+                            <div class="card-trend"
+                                 t-att-class="metrics.trends.completed_week.direction === 'up' ? 'positive' : 'negative'">
+                                <i t-att-class="'fa fa-arrow-' + metrics.trends.completed_week.direction"/>
+                                <t t-esc="Math.abs(Math.round(metrics.trends.completed_week.percentage))"/>%
+                                <t t-esc="metrics.trends.completed_week.direction === 'up' ? 'more' : 'less'"/>
+                                than
+                                <t t-esc="metrics.trends.completed_week.comparison"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribution Section -->
+                <div class="dashboard-section">
+                    <h2 class="section-title">
+                        <i class="fa fa-chart-pie"></i>
+                        Request Distribution
+                    </h2>
+                    <div class="section-subtitle">Breakdown of requests by different categories</div>
+
+                    <div class="distribution-grid">
+                        <!-- By Stage -->
+                        <div class="distribution-card">
+                            <div class="card-header">
+                                <i class="fa fa-columns"></i>
+                                By Stage
+                            </div>
+                            <div class="card-body">
+                                <div class="distribution-list">
+                                    <t t-foreach="state.dashboardData.distribution.by_stage"
+                                       t-as="stage"
+                                       t-key="stage.stage_id[0]">
+                                        <div class="distribution-item">
+                                            <div class="distribution-label">
+                                                <span class="stage-color"
+                                                      t-att-style="'background-color: ' + getStageColor(stage.stage_id[0]) + ';'"></span>
+                                                <span t-esc="stage.stage_id[1]"/>
+                                            </div>
+                                            <div class="distribution-value">
+                                                <span class="count">
+                                                    <t t-esc="formatNumber(stage.stage_id_count)"/>
+                                                </span>
+                                                <span class="percentage">
+                                                    <t
+                                                            t-esc="Math.round((stage.stage_id_count / metrics.total_requests) * 100)"/>
+                                                    %
+                                                </span>
+                                            </div>
+                                            <div class="distribution-progress">
+                                                <div class="progress-bar"
+                                                     t-att-style="'width: ' + ((stage.stage_id_count / metrics.total_requests) * 100) + '%; background-color: ' + getStageColor(stage.stage_id[0]) + ';'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- By Category -->
+                        <div class="distribution-card">
+                            <div class="card-header">
+                                <i class="fa fa-tags"></i>
+                                By Category
+                            </div>
+                            <div class="card-body">
+                                <div class="distribution-chart">
+                                    <div class="chart-container">
+                                        <canvas id="categoryChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="distribution-legend">
+                                    <t t-foreach="state.dashboardData.distribution.by_category"
+                                       t-as="category"
+                                       t-key="category.category_id[0]">
+                                        <div class="legend-item">
+                                            <span class="legend-color"
+                                                  t-att-style="'background-color: ' + getCategoryColor(category.category_id[0]) + ';'"></span>
+                                            <span class="legend-label"
+                                                  t-esc="category.category_id[1]"/>
+                                            <span class="legend-value">
+                                                <t t-esc="formatNumber(category.category_id_count)"/>
+                                            </span>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- By Priority -->
+                        <div class="distribution-card">
+                            <div class="card-header">
+                                <i class="fa fa-flag"></i>
+                                By Priority
+                            </div>
+                            <div class="card-body">
+                                <div class="priority-distribution">
+                                    <t t-foreach="state.dashboardData.distribution.by_priority"
+                                       t-as="priority"
+                                       t-key="priority.priority">
+                                        <div class="priority-item">
+                                            <div class="priority-info">
+                                                <span class="priority-badge"
+                                                      t-att-class="'priority-' + priority.priority">
+                                                    <t t-if="priority.priority === '0'">Low</t>
+                                                    <t t-if="priority.priority === '1'">Medium</t>
+                                                    <t t-if="priority.priority === '2'">High</t>
+                                                    <t t-if="priority.priority === '3'">Urgent</t>
+                                                    <t t-if="priority.priority === false">Not Set</t>
+                                                </span>
+                                                <span class="priority-count">
+                                                    <t t-esc="formatNumber(priority.priority_count)"/>
+                                                </span>
+                                            </div>
+                                            <div class="priority-progress">
+                                                <div
+                                                        t-att-class="'progress-bar ' + getPriorityClass(priority.priority)"
+                                                        t-att-style="'width: ' + ((priority.priority_count / metrics.total_requests) * 100) + '%;'">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </t>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Performance & Operational Section -->
+                <div class="dashboard-section">
+                    <h2 class="section-title">
+                        <i class="fa fa-tachometer-alt"></i>
+                        Performance &amp; Operations
+                    </h2>
+                    <div class="section-subtitle">Team performance metrics and operational insights</div>
+
+                    <div class="performance-grid">
+                        <!-- Performance Metrics -->
+                        <div class="performance-card">
+                            <div class="card-header">
+                                <i class="fa fa-chart-line"></i>
+                                Performance Metrics
+                            </div>
+                            <div class="card-body">
+                                <div class="metrics-container">
+                                    <div class="metric">
+                                        <div class="metric-icon">
+                                            <i class="fa fa-clock"></i>
+                                        </div>
+                                        <div class="metric-content">
+                                            <div class="metric-title">Avg Resolution Time</div>
+                                            <div class="metric-value">
+                                                <t
+                                                        t-esc="Math.round(state.dashboardData.performance.avg_resolution_time)"/>
+                                                hrs
+                                            </div>
+                                            <div class="metric-progress">
+                                                <div class="progress-bar"
+                                                     t-att-style="'width: ' + Math.min(100, (state.dashboardData.performance.avg_resolution_time / 24) * 100) + '%;'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="metric">
+                                        <div class="metric-icon">
+                                            <i class="fa fa-stopwatch"></i>
+                                        </div>
+                                        <div class="metric-content">
+                                            <div class="metric-title">Max Resolution Time</div>
+                                            <div class="metric-value">
+                                                <t
+                                                        t-esc="Math.round(state.dashboardData.performance.max_resolution_time)"/>
+                                                hrs
+                                            </div>
+                                            <div class="metric-progress">
+                                                <div class="progress-bar"
+                                                     t-att-style="'width: ' + Math.min(100, (state.dashboardData.performance.max_resolution_time / 72) * 100) + '%;'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="top-performers">
+                                    <h4 class="subsection-title">
+                                        <i class="fa fa-medal"></i>
+                                        Top Performers
+                                    </h4>
+                                    <div class="performers-list">
+                                        <t
+                                                t-foreach="state.dashboardData.performance.employee_performance"
+                                                t-as="emp"
+                                                t-key="emp.employee_id">
+                                            <div class="performer">
+                                                <div class="performer-avatar">
+                                                    <div class="avatar-circle">
+                                                        <t t-esc="emp.employee_id.image_url"/>
+                                                    </div>
+                                                </div>
+                                                <div class="performer-details">
+                                                    <div class="performer-name"
+                                                         t-esc="emp.employee_id"/>
+                                                    <div class="performer-stats">
+                                                        <span class="requests"
+                                                              t-esc="emp.request_count + ' requests'"/>
+                                                        <span class="completion-rate">92% completion</span>
+                                                    </div>
+                                                </div>
+                                                <div class="performer-rating">
+                                                    <div class="stars">
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star"></i>
+                                                        <i class="fa fa-star-half-alt"></i>
+                                                    </div>
+                                                    <div class="score">4.5</div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Operational Data -->
+                        <div class="operations-card">
+                            <div class="card-header">
+                                <i class="fa fa-tasks"></i>
+                                Operational Data
+                            </div>
+                            <div class="card-body">
+                                <div class="operations-tabs">
+                                    <div class="tabs-header">
+                                        <button
+                                                t-att-class="'tab-btn ' + (state.activeTab === 'recentlyCompleted' ? 'active' : '')"
+                                                t-on-click="() => this.setActiveTab('recentlyCompleted')">
+                                            <i class="fa fa-check-circle"></i>
+                                            Recently Completed
+                                        </button>
+                                        <button
+                                                t-att-class="'tab-btn ' + (state.activeTab === 'pendingAssignments' ? 'active' : '')"
+                                                t-on-click="() => this.setActiveTab('pendingAssignments')">
+                                            <i class="fa fa-user-clock"></i>
+                                            Pending Assignments
+                                        </button>
+                                        <button
+                                                t-att-class="'tab-btn ' + (state.activeTab === 'overdueRequests' ? 'active' : '')"
+                                                t-on-click="() => this.setActiveTab('overdueRequests')">
+                                            <i class="fa fa-exclamation-triangle"></i>
+                                            Overdue
+                                            Requests
+                                        </button>
+                                    </div>
+
+                                    <div class="tabs-content">
+                                        <!-- Recently Completed Requests -->
+                                        <div
+                                                t-att-class="'tab-pane ' + (state.activeTab === 'recentlyCompleted' ? 'active' : '')">
+                                            <div class="requests-table">
+                                                <div class="table-header">
+                                                    <div class="col">Request</div>
+                                                    <div class="col">Date Requested</div>
+                                                    <div class="col">Date Closed</div>
+                                                    <div class="col">Assigned To</div>
+                                                </div>
+                                                <div class="table-body">
+                                                    <t
+                                                            t-foreach="state.dashboardData.operational.recently_completed"
+                                                            t-as="request" t-key="request.id">
+                                                        <div class="table-row"
+                                                             t-on-click="() => this.openRequest(request.id, 'request.request')">
+                                                            <div class="col" t-esc="request.name"/>
+                                                            <div class="col"
+                                                                 t-esc="request.date_request"/>
+                                                            <div class="col"
+                                                                 t-esc="request.date_closed"/>
+                                                            <div class="col"
+                                                                 t-esc="request.assigned_to_id"/>
+                                                        </div>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Pending Requests -->
+                                        <div
+                                                t-att-class="'tab-pane ' + (state.activeTab === 'pendingAssignments' ? 'active' : '')">
+                                            <t
+                                                    t-if="state.dashboardData.operational.pending_assignments.length === 0">
+                                                <div class="empty-state">
+                                                    <i class="fa fa-check-circle"></i>
+                                                    <h4>All caught up!</h4>
+                                                    <p>No pending assignments at this time.</p>
+                                                </div>
+                                            </t>
+                                            <t
+                                                    t-if="state.dashboardData.operational.pending_assignments.length > 0">
+                                                <div class="requests-table">
+                                                    <div class="table-header">
+                                                        <div class="col">Request</div>
+                                                        <div class="col">Date Requested</div>
+                                                        <div class="col">Type</div>
+                                                        <div class="col">Priority</div>
+                                                    </div>
+                                                    <div class="table-body">
+                                                        <t
+                                                                t-foreach="state.dashboardData.operational.pending_assignments"
+                                                                t-as="re" t-key="re.id">
+                                                            <div class="table-row"
+                                                                 t-on-click="() => this.openRequest(re.id, 'request.request')">
+                                                                <div class="col" t-esc="re.name"/>
+                                                                <div class="col"
+                                                                     t-esc="re.date_request"/>
+                                                                <div class="col" t-esc="re.type_id"/>
+                                                                <div class="col">
+                                                                    <span
+                                                                            t-att-class="'priority-badge ' + getPriorityClass(re.priority)">
+                                                                        <t
+                                                                                t-if="re.priority === '0'">
+                                                                            Low
+                                                                        </t>
+                                                                        <t
+                                                                                t-if="re.priority === '1'">
+                                                                            Medium
+                                                                        </t>
+                                                                        <t
+                                                                                t-if="re.priority === '2'">
+                                                                            High
+                                                                        </t>
+                                                                        <t
+                                                                                t-if="re.priority === '3'">
+                                                                            Urgent
+                                                                        </t>
+                                                                    </span>
+                                                                </div>
+                                                            </div>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+
+                                        <!-- Overdue Requests -->
+                                        <div
+                                                t-att-class="'tab-pane ' + (state.activeTab === 'overdueRequests' ? 'active' : '')">
+                                            <t
+                                                    t-if="state.dashboardData.operational.overdue_requests.length === 0">
+                                                <div class="empty-state success">
+                                                    <i class="fa fa-check-circle"></i>
+                                                    <h4>Great job!</h4>
+                                                    <p>No overdue requests at this time.</p>
+                                                </div>
+                                            </t>
+                                            <t
+                                                    t-if="state.dashboardData.operational.overdue_requests.length > 0">
+                                                <div class="requests-table overdue">
+                                                    <div class="table-header">
+                                                        <div class="col">Request</div>
+                                                        <div class="col">Date Requested</div>
+                                                        <div class="col">Due Date</div>
+                                                        <div class="col">Assigned To</div>
+                                                    </div>
+                                                    <div class="table-body">
+                                                        <t
+                                                                t-foreach="state.dashboardData.operational.overdue_requests"
+                                                                t-as="r" t-key="r.id">
+                                                            <div class="table-row"
+                                                                 t-on-click="() => this.openRequest(r.id, 'request.request')">
+                                                                <div class="col" t-esc="r.name"/>
+                                                                <div class="col"
+                                                                     t-esc="r.date_request"/>
+                                                                <div class="col overdue-date"
+                                                                     t-esc="r.date_closed"/>
+                                                                <div class="col"
+                                                                     t-esc="r.assigned_to_id"/>
+                                                            </div>
+                                                        </t>
+                                                    </div>
+                                                </div>
+                                            </t>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Configuration Overview -->
+                <div class="dashboard-section">
+                    <h2 class="section-title">
+                        <i class="fa fa-cog"></i>
+                        Configuration Overview
+                    </h2>
+                    <div class="section-subtitle">System configuration and workload distribution</div>
+
+                    <div class="configuration-grid">
+                        <!-- Categories Workload -->
+                        <div class="configuration-card">
+                            <div class="card-header">
+                                <i class="fa fa-sitemap"></i>
+                                Categories Workload
+                            </div>
+                            <div class="card-body">
+                                <div class="workload-chart">
+                                    <div class="chart-container" id="workloadChart"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Request Types -->
+                        <div class="configuration-card">
+                            <div class="card-header">
+                                <i class="fa fa-list-alt"></i>
+                                Request Types
+                            </div>
+                            <div class="card-body">
+                                <div class="types-table">
+                                    <div class="table-header">
+                                        <div class="col">Type</div>
+                                        <div class="col">Count</div>
+                                        <div class="col">Responsible</div>
+                                    </div>
+                                    <div class="table-body">
+                                        <t
+                                                t-foreach="state.dashboardData.config_overview.request_types"
+                                                t-as="type"
+                                                t-key="type.id">
+                                            <div class="table-row">
+                                                <div class="col" t-esc="type.name"/>
+                                                <div class="col"
+                                                     t-esc="formatNumber(type.request_count)"/>
+                                                <div class="col">
+                                                    <!--                                                    <div class="responsible-team">-->
+                                                    <!--                                                        <t
+                                                    t-foreach="type.responsible_employees_ids"
+                                                    t-as="empl" t-key="empl[0]">-->
+                                                    <!--                                                            <div class="team-member">-->
+                                                    <!--                                                                <div class="avatar-circle small">-->
+                                                    <!--&lt;!&ndash;
+                                                    <t t-esc="emp[1].charAt(0)"/>&ndash;&gt;-->
+                                                    <!--                                                                </div>-->
+                                                    <!--                                                                <span class="member-name"
+                                                    t-esc="empl[1]"/>-->
+                                                    <!--                                                            </div>-->
+                                                    <!--                                                        </t>-->
+                                                    <!--                                                    </div>-->
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

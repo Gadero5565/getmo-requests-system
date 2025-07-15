@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- ========== Main Menu ========== -->
+    <menuitem id="menu_requests_root"
+              name="Requests"
+              sequence="10"
+              groups="master_project_requests.group_request_user"/>
+
+    <!-- ========== Requests Management Submenu ========== -->
+    <menuitem id="menu_requests_management"
+              name="Requests Management"
+              parent="menu_requests_root"
+              sequence="10"/>
+
+    <!-- All Requests -->
+    <menuitem id="menu_request_all"
+              name="Requests"
+              parent="menu_requests_management"
+              groups="master_project_requests.group_request_manager"
+              sequence="10"/>
+    <record id="action_request_all" model="ir.actions.act_window">
+        <field name="name">All Requests</field>
+        <field name="res_model">getmo.request.request</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first request</p>
+        </field>
+    </record>
+    <menuitem id="menu_request_all_tree"
+              name="All Requests"
+              parent="menu_request_all"
+              action="action_request_all"
+              sequence="10"
+              groups="master_project_requests.group_request_technician_specialist,master_project_requests.group_request_manager,master_project_requests.group_request_service_admin"/>
+
+    <!-- My Requests -->
+    <menuitem id="menu_request_my" name="My Requests" parent="menu_requests_management" sequence="20"/>
+    <record id="action_request_my" model="ir.actions.act_window">
+        <field name="name">My Requests</field>
+        <field name="res_model">getmo.request.request</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+        <field name="domain">[('employee_id.user_id', '=', uid)]</field>
+        <field name="context">{'search_default_my_requests': 1}</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first request</p>
+        </field>
+    </record>
+    <menuitem id="menu_request_my_tree"
+              name="My Requests"
+              parent="menu_request_my"
+              action="action_request_my"
+              sequence="20"/>
+
+    <!-- My Assigned Requests -->
+    <menuitem id="menu_request_my_assigned_requests_parent"
+              name="My Assigned Requests"
+              parent="menu_requests_management"
+              groups="master_project_requests.group_request_technician_specialist"
+              sequence="10"/>
+    <record id="action_request_my_assigned_requests" model="ir.actions.act_window">
+        <field name="name">My Assigned Requests</field>
+        <field name="res_model">getmo.request.request</field>
+        <field name="view_mode">kanban,tree,form</field>
+        <field name="domain">[('specialist_technician_filter', '=', 1)]</field>
+    </record>
+    <menuitem id="menu_request_my_assigned_requests"
+              name="My Assigned Requests"
+              parent="menu_request_my_assigned_requests_parent"
+              action="action_request_my_assigned_requests"
+              sequence="30"/>
+
+    <!-- ========== Configuration Submenu ========== -->
+    <menuitem id="menu_requests_config"
+              name="Requests Configuration"
+              parent="menu_requests_root"
+              sequence="20"
+              groups="master_project_requests.group_request_service_admin"/>
+
+    <!-- Request Types -->
+    <menuitem id="menu_request_type" name="Request Types" parent="menu_requests_config" sequence="10"/>
+    <record id="action_request_type" model="ir.actions.act_window">
+        <field name="name">Request Types</field>
+        <field name="res_model">getmo.request.type</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">Create your first request type</p>
+        </field>
+    </record>
+    <menuitem id="menu_request_type_tree"
+              name="Request Types"
+              parent="menu_request_type"
+              action="action_request_type"
+              sequence="10"/>
+
+    <!-- Categories -->
+    <menuitem id="menu_request_category" name="Categories" parent="menu_requests_config" sequence="20"/>
+    <record id="action_request_category" model="ir.actions.act_window">
+        <field name="name">Categories</field>
+        <field name="res_model">getmo.request.category</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+    </record>
+    <menuitem id="menu_request_category_tree"
+              name="Categories"
+              parent="menu_request_category"
+              action="action_request_category"
+              sequence="10"/>
+
+    <!-- Genres -->
+    <menuitem id="menu_request_genre" name="Genres" parent="menu_requests_config" sequence="30"/>
+    <record id="action_request_genre" model="ir.actions.act_window">
+        <field name="name">Genres</field>
+        <field name="res_model">getmo.request.genre</field>
+        <field name="view_mode">kanban,tree,form,pivot,graph</field>
+    </record>
+    <menuitem id="menu_request_genre_tree"
+              name="Genres"
+              parent="menu_request_genre"
+              action="action_request_genre"
+              sequence="10"/>
+
+    <!-- ========== Technical Submenu (Optional) ========== -->
+    <menuitem id="menu_requests_technical"
+              name="Technical"
+              parent="menu_requests_root"
+              sequence="30"
+              groups="master_project_requests.group_request_service_admin"/>
+
+    <!-- Stages (Hidden in normal UI) -->
+    <record id="action_request_type_stage" model="ir.actions.act_window">
+        <field name="name">Request Stages</field>
+        <field name="res_model">getmo.request.type.stage</field>
+        <field name="view_mode">tree,form</field>
+        <field name="groups_id" eval="[(4, ref('base.group_no_one'))]"/>
+    </record>
+    <menuitem id="menu_request_type_stage"
+              name="Request Stages"
+              parent="menu_requests_technical"
+              action="action_request_type_stage"
+              sequence="10"/>
+
+
+    <record id="action_knapsack_log" model="ir.actions.act_window">
+        <field name="name">Knapsack Assignment Logs</field>
+        <field name="res_model">knapsack.assignment.log</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_knapsack_log"
+              name="Knapsack Assignment Logs"
+              parent="menu_requests_technical"
+              action="action_knapsack_log"
+              sequence="20"/>
+
+</odoo>

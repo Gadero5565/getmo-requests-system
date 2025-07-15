@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="inherit_view_employee_form">
+            <field name="model">hr.employee</field>
+            <field name="inherit_id" ref="hr.view_employee_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//notebook" position="inside">
+                    <page string="Services" groups='master_project_requests.group_request_manager'>
+                        <group>
+                            <field name="daily_capacity" widget="float_Time" string="Daily Capacity (hours)"/>
+                            <field name="current_workload" widget="float_Time" string="Current Workload (hours)"/>
+                        </group>
+                    </page>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <record id="employee_request_report" model="ir.actions.report">
+            <field name="name">Request PDF</field>
+            <field name="model">getmo.request.request</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">master_project_requests.employee_request_report_template_info</field>
+            <field name="report_file">master_project_requests.employee_request_report_template_info</field>
+            <field name="print_report_name">"Employee Request"</field>
+            <field name="binding_model_id" ref="model_getmo_request_request"/>
+            <field name="binding_type">report</field>
+        </record>
+
+        <template id="employee_request_report_template_info">
+            <t t-call="web.html_container">
+                <div class="article">
+                    <t t-foreach="docs" t-as="o">
+                        <div class="page">
+                            <t t-call="master_project_requests.employee_request_report_template"/>
+                        </div>
+                    </t>
+                </div>
+            </t>
+        </template>
+
+        <template id="employee_request_report_template">
+            <div>
+                <style>
+                    *{
+                    font-family:'Cairo';
+                    }
+                </style>
+                <script>
+                    @media print
+                    {
+                    table {page-break-inside:auto ; page-break-after:auto }
+                    tr { page-break-inside:auto ; page-break-after:auto }
+                    td { page-break-inside:auto ; page-break-after:auto }
+                    th { page-break-inside:auto ; display:table-header-group }
+                    }
+                </script>
+
+                <div style="padding-top:80px">
+                    <span style="font-size:16pt;">
+                        <t t-raw="o.report_template"/>
+                    </span>
+                </div>
+            </div>
+        </template>
+
+    </data>
+</odoo>

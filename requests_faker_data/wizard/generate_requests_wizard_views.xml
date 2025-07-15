@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_generate_requests_wizard_form" model="ir.ui.view">
+        <field name="name">generate.requests.wizard.form</field>
+        <field name="model">generate.requests.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Generate Test Requests">
+                <sheet>
+                    <group>
+                        <field name="category_id"/>
+                        <field name="type_id"/>
+                        <field name="count"/>
+                        <field name="date_range"/>
+                        <field name="priority_distribution"/>
+                        <field name="stage_distribution"/>
+                    </group>
+                </sheet>
+                <footer>
+                    <button name="action_generate_requests" string="Generate" type="object" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_generate_requests_wizard" model="ir.actions.act_window">
+        <field name="name">Generate Test Requests</field>
+        <field name="res_model">generate.requests.wizard</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_generate_test_requests"
+              name="Requests Faker"
+              parent="master_project_requests.menu_requests_technical"
+              action="action_generate_requests_wizard"
+              sequence="20"/>
+
+</odoo>

@@ -1,0 +1,30 @@
+.o_knapsack_flowchart {
+    padding: 16px;
+    overflow: auto;
+}
+
+.mermaid {
+    min-width: 100%;
+    min-height: 500px;
+    display: flex;
+    justify-content: center;
+}
+
+.mermaid-container {
+    padding: 16px;
+    height: 100%;
+    min-height: 500px;
+}
+
+#flowchart-container {
+    height: 100%;
+    overflow: auto;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: white;
+}
+
+#flowchart-container svg {
+    display: block;
+    margin: 0 auto;
+}

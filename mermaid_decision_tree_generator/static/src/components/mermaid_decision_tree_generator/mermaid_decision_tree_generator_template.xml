@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates>
+    <t t-name="mermaid_decision_tree_generator.KnapsackFlowchartTemplate" owl="1">
+        <div class="mermaid-container">
+            <t t-if="state.loading">
+                <div class="text-center p-4">
+                    <i class="fa fa-spinner fa-spin"/> Loading flowchart...
+                </div>
+            </t>
+
+            <t t-elif="state.error">
+                <div class="alert alert-danger">
+                    Error rendering flowchart. Check console for details.
+                </div>
+            </t>
+
+            <div id="flowchart-container" t-att-class="{'d-none': state.loading || state.error}"/>
+        </div>
+    </t>
+</templates>

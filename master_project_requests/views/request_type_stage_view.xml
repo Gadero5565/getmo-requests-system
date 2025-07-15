@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <record id="view_request_type_stage_form" model="ir.ui.view">
+            <field name="name">getmo.request.type.stage.form</field>
+            <field name="model">getmo.request.type.stage</field>
+            <field name="arch" type="xml">
+                <form>
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                            <field name="sequence"/>
+                            <field name="stage_type"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <record id="view_request_type_stage_tree" model="ir.ui.view">
+            <field name="name">getmo.request.type.stage.tree</field>
+            <field name="model">getmo.request.type.stage</field>
+            <field name="arch" type="xml">
+                <tree editable="bottom">
+                    <field name="name"/>
+                    <field name="code"/>
+                    <field name="sequence"/>
+                    <field name="stage_type"/>
+                </tree>
+            </field>
+        </record>
+
+        <record id="view_request_type_stage_search" model="ir.ui.view">
+            <field name="name">getmo.request.type.stage.search</field>
+            <field name="model">getmo.request.type.stage</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                </search>
+            </field>
+        </record>
+
+    </data>
+</odoo>

@@ -1,0 +1,427 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+
+        <!-- Form View -->
+        <record id="view_request_form" model="ir.ui.view">
+            <field name="name">request.form</field>
+            <field name="model">getmo.request.request</field>
+            <field name="arch" type="xml">
+                <form>
+                    <header>
+
+                        <button name="action_to_do_progress"
+                                string="Send"
+                                type="object"
+                                class="oe_highlight"
+                                attrs="{'invisible': [('stage_name', '!=', 'draft')]}"/>
+
+                        <button name="action_start_progress"
+                                string="Start Progress"
+                                type="object"
+                                class="oe_highlight"
+                                attrs="{'invisible': [('stage_name', '!=', 'assigned')]}"
+                                groups="master_project_requests.group_request_technician_specialist"/>
+
+                        <button name="action_done"
+                                string="Mark as Done"
+                                type="object"
+                                class="oe_highlight"
+                                attrs="{'invisible': [('stage_name', '!=', 'in_progress')]}"
+                                groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin"/>
+
+                        <button name="action_refuse"
+                                string="Refuse"
+                                type="object"
+                                attrs="{'invisible': [('stage_name', '!=', 'assigned')]}"
+                                groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin"/>
+
+                        <button name="action_notify_manager_check"
+                                type="object"
+                                string="Notify Manager"
+                                class="oe_highlight"
+                                attrs="{'invisible': [('stage_name', '!=', 'in_progress')]}"/>
+
+                        <field name="stage_id" widget="statusbar" options="{'fold_field': 'fold'}"/>
+                    </header>
+                    <sheet>
+                        <!-- Hidden fields -->
+                        <group invisible="1">
+                            <field name="stage_name"/>
+                            <field name="is_stage_done"/>
+                            <field name="attachment_setting_state"/>
+                            <field name="report_needed"/>
+                            <field name="result_type"/>
+                            <field name="user_can_edit_fields"/>
+                            <field name="can_manager_assign"/>
+                        </group>
+
+                        <!-- Title Section -->
+                        <div name="title" class="request-header">
+                            <h2 class="text-white">
+                                <field name="name" readonly="1" class="oe_inline" force_save="1"/>
+                            </h2>
+                            <field name="priority" widget="priority"
+                                   attrs="{'readonly': [('stage_name', '!=', 'draft')]}"/>
+                        </div>
+
+                        <!-- Main Info Cards -->
+                        <div class="row mb-4">
+                            <div class="col-lg-8">
+                                <div class="request-card">
+                                    <div class="card-body">
+                                        <div class="row">
+                                            <!-- Category -->
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-group">
+                                                    <label for="category_id">Category</label>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fa fa-bars mr-2 text-primary"></i>
+                                                        <field name="category_id"
+                                                               placeholder="Select category..."
+                                                               attrs="{'readonly': [('id', '!=', False)]}"
+                                                               options="{'no_create': True, 'no_open': True, 'no_edit': True}"
+                                                               class="form-control"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Type -->
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-group">
+                                                    <label for="type_id">Type</label>
+                                                    <div class="d-flex align-items-center">
+                                                        <i class="fa fa-hashtag mr-2 text-primary"></i>
+                                                        <field name="type_id"
+                                                               placeholder="Select type..."
+                                                               domain="[('category_ids', '=', category_id)]"
+                                                               attrs="{'readonly': [('id', '!=', False)]}"
+                                                               options="{'no_create': True, 'no_open': True, 'no_edit': True}"
+                                                               class="form-control"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Genres -->
+                                            <div class="col-md-4 mb-3">
+                                                <div class="form-group">
+                                                    <label for="genre_id">Genre</label>
+                                                    <div class="d-flex align-items-center"
+                                                         attrs="{'invisible': [('genre_id', '=', False)]}">
+                                                        <i class="fa fa-square mr-2 text-primary"></i>
+                                                        <field name="genre_id"
+                                                               placeholder="Select Genre..."
+                                                               options="{'no_create': True, 'no_open': True, 'no_edit': True}"
+                                                               class="form-control"/>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Assigned To -->
+                            <div class="col-lg-4"
+                                 groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin">
+                                <div class="request-card h-100">
+                                    <div class="card-body">
+                                        <div class="form-group">
+                                            <label for="assigned_to_id">Assigned To</label>
+                                            <field name="assigned_to_id"
+                                                   attrs="{'readonly': [('stage_name', 'not in', ['draft', 'assigned'])]}"
+                                                   options="{'no_create': True, 'no_open': True, 'no_edit': True}"
+                                                   class="form-control"/>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Description & Help -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="request-card">
+                                    <div class="card-header">Request Description</div>
+                                    <div class="card-body">
+                                        <field name="description"
+                                               placeholder="Enter request description..."
+                                               style="min-height: 150px; resize: vertical;"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="request-card">
+                                    <div class="card-header">Request Help</div>
+                                    <div class="card-body">
+                                        <field name="help_html"
+                                               placeholder="Help content will appear here..."
+                                               style="min-height: 150px; resize: vertical;"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Notebook -->
+                        <notebook class="mt-4">
+                            <page name="request_details" string="Details">
+                                <div class="request-card">
+                                    <div class="card-header">Request Text</div>
+                                    <div class="card-body">
+                                        <field name="request_text"
+                                               placeholder="Your Request Details..."
+                                               nolabel="1"
+                                               attrs="{'readonly': [('stage_name', '!=', 'draft')]}"
+                                               class="form-control"
+                                               style="min-height: 200px; resize: vertical;"/>
+                                    </div>
+                                </div>
+                                <!-- Attachments -->
+                                <div class="request-card mt-4 attachment-section"
+                                     attrs="{'invisible': ['|', ('type_id', '=', False), ('attachment_setting_state', '=', 'no_attachments')]}">
+                                    <div class="card-header">Request Attachments</div>
+                                    <div class="card-body">
+                                        <field name="single_attachment_file"
+                                               widget="binary"
+                                               filename="file_name"
+                                               attrs="{'invisible': [('attachment_setting_state', '!=', 'single_attachment')]}"
+                                               class="o_field_binary"/>
+                                        <field name="file_name" class="oe_inline" invisible="1"/>
+                                        <field name="requests_attachments"
+                                               widget="many2many_binary"
+                                               attrs="{'invisible': [('attachment_setting_state', '!=', 'multiple_attachments')]}"
+                                               class="o_field_many2many_binary"/>
+                                    </div>
+                                </div>
+                            </page>
+                            <page name="request_result" string="Request Result"
+                                  attrs="{'invisible':[('stage_name', '=', 'draft')],}">
+                                <div class="request-card">
+                                    <div class="card-header">Request Result</div>
+                                    <div class="card-body">
+                                        <field name="result_text"
+                                               attrs="{'readonly': ['|', ('user_can_edit_fields', '=', False), ('stage_name', '!=', 'in_progress')]}"
+                                               placeholder="Your Request Result..."
+                                               nolabel="1"
+                                               class="form-control"
+                                               style="min-height: 200px; resize: vertical;"/>
+                                    </div>
+                                </div>
+                                <div class="request-card mt-4 attachment-section"
+                                     attrs="{'invisible': ['|', ('type_id', '=', False), ('result_type', '!=', 'attachment')]}">
+                                    <div class="card-header">Result Attachments</div>
+                                    <div class="card-body">
+                                        <field name="requests_result_attachments"
+                                               widget="many2many_binary"
+                                               attrs="{'readonly': ['|', ('user_can_edit_fields', '=', False), ('stage_name', '!=', 'in_progress')]}"
+                                               class="o_field_many2many_binary"/>
+                                    </div>
+                                </div>
+                            </page>
+                            <page name="content" string="Content"
+                                  attrs="{'invisible': [('report_needed', '=', False)], 'readonly': [('user_can_edit_fields', '=', False)]}">
+                                <div class="request-card">
+                                    <div class="card-header d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">Report Content</h6>
+                                        <button type="object"
+                                                name="get_request_as_pdf"
+                                                string="Generate PDF"
+                                                class="btn-custom btn-primary"
+                                                icon="fa-file-pdf-o"/>
+                                    </div>
+                                    <div class="card-body">
+                                        <field name="report_template"
+                                               force_save="1"
+                                               class="form-control"
+                                               attrs="{'readonly': ['|', ('user_can_edit_fields', '=', False), ('stage_name', '!=', 'in_progress')]}"
+                                               style="min-height: 500px; resize: vertical;"/>
+                                    </div>
+                                </div>
+                            </page>
+                            <page name="preview_template_page" string="Preview"
+                                  attrs="{'invisible': [('report_attachment_file', '=', False)]}">
+                                <div class="request-card">
+                                    <div class="card-header">PDF Preview</div>
+                                    <div class="card-body p-0 pdf-viewer">
+                                        <field name="report_attachment_file"
+                                               widget="pdf_viewer"
+                                               options="{'page': '1'}"
+                                               class="h-100"/>
+                                    </div>
+                                </div>
+                            </page>
+                            <page name="developer_page" string="Developer Page" groups="base.group_system">
+                                <group>
+                                    <field name="date_request"/>
+                                    <field name="date_assigned"/>
+                                    <field name="date_closed"/>
+                                </group>
+                            </page>
+                        </notebook>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Tree View -->
+        <record id="view_request_tree" model="ir.ui.view">
+            <field name="name">request.tree</field>
+            <field name="model">getmo.request.request</field>
+            <field name="arch" type="xml">
+                <tree limit="20">
+                    <field name="name" force_save="1"/>
+                    <field name="type_id"
+                           optional="show"/>
+                    <field name="category_id"
+                           optional="show"/>
+                    <field name="stage_id"/>
+                    <field name="employee_id"/>
+                    <field name="date_request"/>
+                </tree>
+            </field>
+        </record>
+
+        <!-- Kanban View -->
+        <record id="view_request_kanban" model="ir.ui.view">
+            <field name="name">request.kanban</field>
+            <field name="model">getmo.request.request</field>
+            <field name="arch" type="xml">
+                <kanban default_group_by="stage_id" class="o_kanban_mobile o_kanban_dashboard" limit="20">
+                    <field name="stage_id" invisible="1"/>
+                    <field name="type_id"/>
+                    <field name="genre_id"/>
+                    <field name="category_id"/>
+                    <field name="employee_id"/>
+                    <field name="date_request"/>
+                    <field name="is_stage_done"/>
+                    <templates>
+                        <t t-name="kanban-box">
+                            <div t-attf-class="mt-3 oe_kanban_card oe_kanban_global_click kanban-color-#{record.stage_id.raw_value == 'New' ? '1' : record.stage_id.raw_value == 'In Progress' ? '2' : record.stage_id.raw_value == 'Done' ? '10' : '3'}">
+                                <!-- Header -->
+                                <div class="kanban-header">
+                                    <strong class="kanban-title">
+                                        <field name="name" force_save="1"/>
+                                    </strong>
+                                </div>
+
+                                <!-- Badges for Category, Genere, Type -->
+                                <div class="kanban-badges">
+                                    <span class="kanban-badge badge-category">
+                                        <i class="fa fa-bars"></i>
+                                        <field name="category_id"/>
+                                    </span>
+                                    <span class="kanban-badge badge-kind" t-if="record.genre_id.raw_value">
+                                        <i class="fa fa-square"></i>
+                                        <field name="genre_id"/>
+                                    </span>
+                                    <span class="kanban-badge badge-type">
+                                        <i class="fa fa-hashtag"></i>
+                                        <field name="type_id"/>
+                                    </span>
+                                </div>
+
+                                <!-- Description -->
+                                <div class="kanban-description">
+                                    <field name="description" widget="text"/>
+                                </div>
+
+                                <!-- Footer -->
+                                <div class="kanban-footer">
+                                    <div class="kanban-employee">
+                                        <field name="employee_id" widget="many2one_avatar"/>
+                                    </div>
+                                    <div class="kanban-date">
+                                        <i class="fa fa-calendar"></i>
+                                        <field name="date_request" widget="date"/>
+                                    </div>
+                                </div>
+
+                                <!-- Progress Bar -->
+                                <div class="kanban-progress" t-if="record.is_stage_done.raw_value">
+                                    <div class="progress-bar bg-gradient-success" role="progressbar"
+                                         style="width: 100%"></div>
+                                </div>
+                            </div>
+                        </t>
+                    </templates>
+                    <colors>
+                        <field name="stage_id"/>
+                        <color value="New" color="1"/>  <!-- Blue -->
+                        <color value="In Progress" color="2"/>  <!-- Orange -->
+                        <color value="Done" color="10"/>  <!-- Green -->
+                        <color value="Cancelled" color="3"/>  <!-- Red -->
+                    </colors>
+                    <progressbars>
+                        <progressbar field="is_stage_done" colors='{"true": "success", "false": "danger"}'/>
+                    </progressbars>
+                </kanban>
+            </field>
+        </record>
+
+        <!-- Search View -->
+        <record id="view_request_search" model="ir.ui.view">
+            <field name="name">request.search</field>
+            <field name="model">getmo.request.request</field>
+            <field name="arch" type="xml">
+                <search>
+                    <field name="name"/>
+                    <separator/>
+                    <field name="type_id"/>
+                    <field name="category_id"/>
+                    <field name="genre_id"/>
+                    <separator/>
+                    <field name="employee_id"/>
+                    <separator/>
+                    <field name="stage_id"/>
+                    <!-- Group by options -->
+                    <group expand="0" string="Group By">
+                        <filter string="Category" name="group_category_id"
+                                context="{'group_by':'category_id'}"/>
+
+                        <filter string="Genre" name="group_genre_id"
+                                context="{'group_by':'genre_id'}"/>
+
+                        <filter string="Priority" name="group_priority"
+                                context="{'group_by':'priority'}"/>
+
+                        <filter string="Type" name="group_type_id"
+                                context="{'group_by':'type_id'}"/>
+
+                        <filter string="Applier" name="group_employee_id"
+                                context="{'group_by':'employee_id'}"/>
+
+                        <filter string="Stage" name="group_stage_id"
+                                context="{'group_by':'stage_id'}"/>
+                    </group>
+                </search>
+            </field>
+        </record>
+
+        <!-- Pivot View -->
+        <record id="view_request_pivot" model="ir.ui.view">
+            <field name="name">request.pivot</field>
+            <field name="model">getmo.request.request</field>
+            <field name="arch" type="xml">
+                <pivot>
+                    <field name="type_id" type="row"/>
+                    <field name="category_id" type="col"/>
+                    <field name="stage_id" type="col"/>
+                    <field name="priority" type="col"/>
+                    <field name="date_request" type="col" interval="month"/>
+                </pivot>
+            </field>
+        </record>
+
+        <!-- Graph View -->
+        <record id="view_request_graph" model="ir.ui.view">
+            <field name="name">request.graph</field>
+            <field name="model">getmo.request.request</field>
+            <field name="arch" type="xml">
+                <graph>
+                    <field name="type_id" type="row"/>
+                    <field name="stage_id" type="row"/>
+                    <field name="date_request" type="row" interval="month"/>
+                    <field name="id" type="measure" string="Count"/>
+                </graph>
+            </field>
+        </record>
+
+    </data>
+</odoo>
