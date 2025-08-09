@@ -1,5 +1,7 @@
 from odoo import models, fields, api, _
 from odoo.exceptions import ValidationError, UserError
+from datetime import timedelta
+import json
 import base64
 import logging
 _logger = logging.getLogger(__name__)
@@ -70,6 +72,12 @@ class Request(models.Model):
     )
     date_assigned = fields.Datetime('Assigned Date', readonly=True)
     date_closed = fields.Datetime('Closed Date', readonly=True)
+    is_past_due = fields.Boolean(
+        string="Past Due",
+        compute='_compute_is_past_due',
+        store=True,
+        help="True if the request exceeds expected completion time"
+    )
     result_text = fields.Html(
         'Result',
     )
@@ -83,6 +91,7 @@ class Request(models.Model):
     can_manager_assign = fields.Boolean("Can Manager Assign? ", compute="_compute_can_manager_assign")
     description = fields.Text(related="type_id.description")
     help_html = fields.Html(related="type_id.help_html")
+    is_request_assigned = fields.Boolean("Is Assigned ? ", compute="_compute_is_request_assigned")
 
     # Attachments
     attachment_setting_state = fields.Selection(related="type_id.attachment_setting_state", store=True)
@@ -436,6 +445,30 @@ class Request(models.Model):
             else:
                 return {'domain': {'assigned_to_id': []}}
 
+    # Used This For Filtering Assigned Requests
+    @api.depends('assigned_to_id')
+    def _compute_is_request_assigned(self):
+        for rec in self:
+            if rec.assigned_to_id:
+                rec.is_request_assigned = True
+            else:
+                rec.is_request_assigned = False
+
+    # Used This For Filtering Past Due Requests
+    @api.depends('date_request', 'stage_id', 'type_id.expected_completion_days')
+    def _compute_is_past_due(self):
+        now = fields.Datetime.now()
+        for request in self:
+            # Only calculate for non-closed requests
+            if request.stage_id.stage_type not in ['done', 'refused']:
+                if request.date_request and request.type_id.expected_completion_days:
+                    due_date = request.date_request + timedelta(days=request.type_id.expected_completion_days)
+                    request.is_past_due = due_date < now
+                else:
+                    request.is_past_due = False
+            else:
+                request.is_past_due = False
+
     # Buttons And Logic
     def action_to_do_progress(self):
         self.ensure_one()
@@ -498,8 +531,7 @@ class Request(models.Model):
         current_user = self.env.user
         current_employee = self.env['hr.employee'].search([('user_id', '=', current_user.id),], limit=1)
         if current_user.has_group('master_project_requests.group_request_technician_specialist'):
-            requests_types = self.env['getmo.request.type'].search([('responsible_employees_ids', 'in', current_employee.id)])
-            requests = self.env['getmo.request.request'].search([('type_id', 'in', requests_types.ids)])
+            requests = self.env['getmo.request.request'].search([('assigned_to_id', '=', current_employee.id)])
             return [('id', 'in', requests.ids)]
         else:
             return [('id', 'in', [])]
@@ -574,3 +606,184 @@ class Request(models.Model):
             'res_id': self.id,
             'mimetype': 'application/pdf',
         })
+
+    def _cron_assign_unassigned_requests(self):
+        Request = self.env['getmo.request.request']
+        assigned_stage = self.env['getmo.request.type.stage'].search([('stage_type', '=', 'assigned')], limit=1)
+        if not assigned_stage:
+            return
+
+        # Start of flowchart
+        flowchart = [
+            "flowchart TD",
+            "    Start[CRON: Assign Unassigned Requests]"
+        ]
+
+        # Fetch unassigned requests (not closed and not assigned)
+        unassigned_requests = Request.search([
+            ('assigned_to_id', '=', False),
+            ('stage_id.stage_type', 'not in', ['done', 'refused'])
+        ])
+
+        flowchart.append(f"    FoundUnassigned[Found {len(unassigned_requests)} unassigned requests]")
+        flowchart.append("    Start --> FoundUnassigned")
+
+        if not unassigned_requests:
+            flowchart.append("    NoRequests[No unassigned requests found]")
+            flowchart.append("    FoundUnassigned --> NoRequests")
+            return
+
+        # Group requests by type and sort by priority (high first)
+        requests_by_type = {}
+        for request in unassigned_requests:
+            if request.type_id not in requests_by_type:
+                requests_by_type[request.type_id] = []
+            requests_by_type[request.type_id].append(request)
+
+        flowchart.append("    GroupByType[Group requests by type]")
+        flowchart.append("    FoundUnassigned --> GroupByType")
+
+        # Sort requests within each type by priority (descending)
+        for req_type, requests in requests_by_type.items():
+            requests_by_type[req_type] = sorted(
+                requests,
+                key=lambda r: int(r.priority or '0'),
+                reverse=True
+            )
+            priority_list = "\n".join([f"{r.name}: {r.priority}" for r in requests])
+            flowchart.append(
+                f"    SortType{req_type.id}[\"Sort {req_type.name} requests by priority\n{priority_list}\"]")
+            flowchart.append(f"    GroupByType --> SortType{req_type.id}")
+
+        # Collect all responsible employees and precompute workloads
+        all_employees = self.env['hr.employee']
+        for req_type in requests_by_type.keys():
+            all_employees |= req_type.responsible_employees_ids
+
+        flowchart.append("    GetEmployees[Get all responsible employees]")
+        flowchart.append("    GroupByType --> GetEmployees")
+
+        # Create workload dictionary {employee_id: current_workload}
+        workloads = {emp.id: emp.current_workload for emp in all_employees}
+        workload_list = "\n".join([f"{emp.name}: {workloads[emp.id]}/{emp.daily_capacity}h" for emp in all_employees])
+        flowchart.append(f"    CheckWorkloads[\"Current workloads:\n{workload_list}\"]")
+        flowchart.append("    GetEmployees --> CheckWorkloads")
+
+        # Process each request type
+        for req_type, requests in requests_by_type.items():
+            employees = req_type.responsible_employees_ids
+            flowchart.append(f"    ProcessType{req_type.id}[\"Process {req_type.name} requests\"]")
+            flowchart.append(f"    CheckWorkloads --> ProcessType{req_type.id}")
+
+            for request in requests:
+                best_employee = None
+                best_remaining_capacity = -1
+                assignment_reason = ""
+                no_assignment_reason = ""
+                decision_steps = []
+                request_flow = []
+
+                # Request evaluation header
+                request_flow.append(
+                    f"    Req{request.id}[\"Request {request.name}\nPriority: {request.priority}\nDuration: {request.estimated_duration}h\"]")
+                request_flow.append(f"    ProcessType{req_type.id} --> Req{request.id}")
+
+                # Evaluate each employee
+                for emp in employees:
+                    remaining_capacity = emp.daily_capacity - workloads.get(emp.id, 0)
+                    can_handle = remaining_capacity >= request.estimated_duration
+                    step_data = {
+                        'employee_id': emp.id,
+                        'employee_name': emp.name,
+                        'current_workload': workloads.get(emp.id, 0),
+                        'daily_capacity': emp.daily_capacity,
+                        'remaining_capacity': remaining_capacity,
+                        'can_handle': can_handle,
+                        'is_selected': False,
+                        'reason': ''
+                    }
+
+                    # Check if employee can handle the request
+                    if can_handle and remaining_capacity > best_remaining_capacity:
+                        best_employee = emp
+                        best_remaining_capacity = remaining_capacity
+                        step_data.update({
+                            'is_selected': True,
+                            'reason': 'Highest remaining capacity'
+                        })
+
+                    decision_steps.append(step_data)
+                    emp_status = "✓" if can_handle else "✗"
+                    request_flow.append(
+                        f"    Emp{emp.id}Req{request.id}[\"{emp.name}\n{remaining_capacity:.2f}h remaining\n{emp_status}\"]")
+                    request_flow.append(f"    Req{request.id} --> Emp{emp.id}Req{request.id}")
+
+                # Determine assignment
+                if best_employee:
+                    assignment_reason = (
+                        f"Assigned to {best_employee.name} with "
+                        f"{best_remaining_capacity:.2f}h remaining capacity"
+                    )
+                    # Update workload locally
+                    workloads[best_employee.id] += request.estimated_duration
+                    assigned_stage = self.env['getmo.request.type.stage'].search([('stage_type', '=', 'assigned')],
+                                                                                 limit=1)
+                    # Assign request
+                    request.write({
+                        'assigned_to_id': best_employee.id,
+                        'date_assigned': fields.Datetime.now(),
+                        'stage_id': assigned_stage,
+                    })
+                    request_flow.append(f"    Assign{request.id}[\"ASSIGNED TO {best_employee.name}\"]")
+                    request_flow.append(f"    Emp{best_employee.id}Req{request.id} --> Assign{request.id}")
+                else:
+                    no_assignment_reason = "No capable employee found"
+                    request_flow.append(f"    NoAssign{request.id}[\"NOT ASSIGNED\nNo capable employee\"]")
+                    request_flow.append(f"    Req{request.id} --> NoAssign{request.id}")
+
+                flowchart.extend(request_flow)
+
+                # Complete the flowchart
+                flowchart.append("    End[CRON COMPLETE]")
+                flowchart.append(f"    ProcessType{req_type.id} --> End")
+                complete_flowchart = "\n".join(flowchart)
+
+                # Create/update knapsack log with the complete flowchart
+                self._update_knapsack_log(
+                    request,
+                    employees,
+                    workloads,
+                    decision_steps,
+                    best_employee,
+                    assignment_reason,
+                    no_assignment_reason,
+                    complete_flowchart  # Pass the complete flowchart
+                )
+
+    def _update_knapsack_log(self, request, employees, workloads, decision_steps,
+                             best_employee, assignment_reason, no_assignment_reason,
+                             knapsack_decision_tree):
+        log_vals = {
+            'request_id': request.id,
+            'request_type_id': request.type_id.id,
+            'estimated_duration': request.estimated_duration,
+            'available_employee_ids': [(6, 0, employees.ids)],
+            'employee_workloads': json.dumps({
+                emp.name: workloads.get(emp.id, 0) for emp in employees
+            }),
+            'decision_steps': json.dumps(decision_steps),
+            'selected_employee_id': best_employee.id if best_employee else False,
+            'assignment_reason': assignment_reason,
+            'no_assignment_reason': no_assignment_reason,
+            'knapsack_decision_tree': knapsack_decision_tree,
+            'cron_mermaid_flowchart': knapsack_decision_tree,  # Store the complete flowchart
+        }
+
+        # Find existing log or create new
+        log = self.env['knapsack.assignment.log'].search([
+            ('request_id', '=', request.id)
+        ], limit=1)
+        if log:
+            log.write(log_vals)
+        else:
+            self.env['knapsack.assignment.log'].create(log_vals)

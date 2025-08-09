@@ -9,12 +9,12 @@ class GenerateRequestsWizard(models.TransientModel):
     _description = 'Wizard to generate fake requests'
 
     category_id = fields.Many2one(
-        'request.category',
+        'getmo.request.category',
         string='Category',
         required=True
     )
     type_id = fields.Many2one(
-        'request.type',
+        'getmo.request.type',
         string='Type',
         required=True,
         domain="[('category_ids', 'in', category_id)]"
@@ -66,7 +66,7 @@ class GenerateRequestsWizard(models.TransientModel):
             raise UserError(_("No employees found in the system. Please create some employees first."))
 
         # Get all stages
-        stages = self.env['request.type.stage'].search([])
+        stages = self.env['getmo.request.type.stage'].search([])
         if not stages:
             raise UserError(_("No stages found for request types. Please configure stages first."))
 
@@ -118,7 +118,7 @@ class GenerateRequestsWizard(models.TransientModel):
                     date_closed = fields.Datetime.add(date_request, days=random.randint(1,
                                                                                         30)) if stage.stage_type == 'done' else False
                 else:
-                    stage = stages.filtered(lambda s: s.stage_type == 'new')
+                    stage = stages.filtered(lambda s: s.stage_type == 'draft')
                     result_text = False
                     assigned_to = False
                     date_assigned = False
@@ -143,7 +143,7 @@ class GenerateRequestsWizard(models.TransientModel):
                 })
 
             # Create the batch
-            self.env['request.request'].create(request_vals)
+            self.env['getmo.request.request'].create(request_vals)
 
         return {
             'type': 'ir.actions.client',

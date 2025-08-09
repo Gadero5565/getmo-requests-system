@@ -25,6 +25,7 @@
     # always loaded
     'data': [
         'data/data.xml',
+        'data/knapsack_cron.xml',
 
         'security/security_groups.xml',
         'security/ir.model.access.csv',

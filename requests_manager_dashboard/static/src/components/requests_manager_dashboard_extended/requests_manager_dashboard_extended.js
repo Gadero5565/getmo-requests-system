@@ -4,7 +4,6 @@ import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
 const Chart = window.Chart;
-const Highcharts = window.Highcharts;
 
 class RequestsManagerDashboardExtended extends Component {
   static template =
@@ -34,7 +33,7 @@ class RequestsManagerDashboardExtended extends Component {
 
     onMounted(() => {
       this.renderChart();
-      this.renderWorkloadChart();
+      this.renderWorkloadBarChart(); // Changed from renderWorkloadChart()
     });
   }
 
@@ -91,67 +90,62 @@ class RequestsManagerDashboardExtended extends Component {
     }
   }
 
-renderWorkloadChart() {
-  const container = document.getElementById("workloadChart");
-  if (!container || !this.state.dashboardData?.distribution?.by_category)
+renderWorkloadBarChart() {
+  const canvas = document.getElementById("workloadBarChart");
+  if (!canvas || !this.state.dashboardData?.distribution?.by_category) {
     return;
+  }
 
-  // Extract and sort categories data (largest first)
   const categories = [...this.state.dashboardData.distribution.by_category];
   categories.sort((a, b) => b.category_id_count - a.category_id_count);
 
-  // Prepare data for Highcharts
-  const chartData = categories.map((category) => ({
-    name: category.category_id[1],
-    y: category.category_id_count,
-    color: this.getCategoryColor(category.category_id[0]),
-  }));
+  const data = {
+    labels: categories.map(cat => cat.category_id[1]),
+    datasets: [{
+      label: 'Number of Requests',
+      data: categories.map(cat => cat.category_id_count),
+      backgroundColor: categories.map(cat =>
+        this.getCategoryColor(cat.category_id[0])
+      ),
+      borderWidth: 1
+    }]
+  };
 
-  // Create horizontal bar chart
-  Highcharts.chart(container, {
-    chart: {
+  try {
+    new Chart(canvas.getContext('2d'), {
       type: 'bar',
-      backgroundColor:null,
-      height: 250 + (categories.length * 20) // Dynamic height
-    },
-    title: { text: null },
-    xAxis: {
-      title: { text: 'Number of Requests' },
-      gridLineWidth: 1
-    },
-    yAxis: {
-      categories: chartData.map(item => item.name),
-      title: { text: null },
-      labels: {
-        style: { fontSize: '12px' }
-      }
-    },
-    tooltip: {
-      pointFormat: '<b>{point.y} requests</b>',
-      style: { fontSize: '12px' }
-    },
-    plotOptions: {
-      bar: {
-        dataLabels: {
-          enabled: true,
-          align: 'right',
-          inside: false,
-          format: '{point.y:,.0f}',
-          style: {
-            fontSize: '11px',
-            textOutline: 'none'
+      data: data,
+      options: {
+        indexAxis: 'y', // Horizontal bars
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              label: (context) => `${context.parsed.x} requests`
+            }
           }
         },
-        colorByPoint: true
+        scales: {
+          x: {
+            title: {
+              display: true,
+              text: 'Number of Requests'
+            },
+            grid: { display: true }
+          },
+          y: {
+            ticks: {
+              font: { size: 12 }
+            }
+          }
+        }
       }
-    },
-    series: [{
-      name: 'Requests',
-      data: chartData
-    }],
-    credits: { enabled: true },
-    legend: { enabled: true }
-  });
+    });
+  } catch (error) {
+    console.error("Error rendering workload chart:", error);
+  }
 }
 
   formatNumber(value) {

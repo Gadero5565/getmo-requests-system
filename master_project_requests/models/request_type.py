@@ -1,5 +1,5 @@
 import re
-from odoo import models, fields, api
+from odoo import models, fields, api,_
 from odoo.exceptions import ValidationError
 
 
@@ -38,6 +38,12 @@ class RequestType(models.Model):
                                    help="This flag will determine if the service will result as report.")
     result_type = fields.Selection([('text', 'Text'), ('attachment', 'Attachment')], default='text',
                                    string="Result Type")
+    expected_completion_days = fields.Integer(
+        string='Expected Completion Time (days)',
+        default=1,
+        required=True,
+        help="Expected number of days to complete requests of this type"
+    )
 
     @api.depends('request_ids')
     def _compute_request_count(self):
@@ -81,6 +87,12 @@ class RequestType(models.Model):
                         'prefix': f"{code}-",
                     })
         return super(RequestType, self).write(vals)
+
+    @api.constrains('expected_completion_days')
+    def _check_expected_completion_days(self):
+        for rec in self:
+            if rec.expected_completion_days < 1:
+                raise ValidationError(_("Expected completion days must be at least 1."))
 
     @api.onchange('responsible_employees_ids')
     def _onchange_responsible_employees_ids(self):

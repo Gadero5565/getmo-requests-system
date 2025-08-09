@@ -21,13 +21,12 @@
                             <h3>Failed to load dashboard</h3>
                             <p>Please try again later or contact support if the problem persists.</p>
                         </div>
-                        <button class="btn-retry" t-on-click="() => this.loadData()">Retry</button>
                     </div>
                 </div>
             </t>
 
             <!-- Main Dashboard Content -->
-            <t t-if="state.dashboardData and !state.loading">
+            <t t-if="state.dashboardData and state.dashboardData.is_admin and !state.loading">
                 <!-- Dashboard Header -->
                 <div class="dashboard-header">
                     <div class="header-content">
@@ -55,7 +54,15 @@
                     <!-- Total Requests Card -->
                     <div class="metric-card card-total">
                         <div class="card-content">
-                            <div class="card-title">Total Requests</div>
+                            <div class="card-title">
+                                Total Requests
+                                <span class="info-tooltip">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="tooltip-content">
+                                        Total number of requests created in the system since inception
+                                    </span>
+                                </span>
+                            </div>
                             <div class="card-value">
                                 <t t-esc="formatNumber(metrics.total_requests)"/>
                             </div>
@@ -68,12 +75,21 @@
                                 <t t-esc="metrics.trends.total_requests.comparison"/>
                             </div>
                         </div>
+                        <div class="card-wave"></div>
                     </div>
 
                     <!-- Open Requests Card -->
                     <div class="metric-card card-open">
                         <div class="card-content">
-                            <div class="card-title">Open Requests</div>
+                            <div class="card-title">
+                                Open Requests
+                                <span class="info-tooltip">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="tooltip-content">
+                                        Requests currently in progress (not completed or canceled)
+                                    </span>
+                                </span>
+                            </div>
                             <div class="card-value">
                                 <t t-esc="formatNumber(metrics.open_requests)"/>
                             </div>
@@ -86,12 +102,21 @@
                                 <t t-esc="metrics.trends.open_requests.comparison"/>
                             </div>
                         </div>
+                        <div class="card-wave"></div>
                     </div>
 
                     <!-- Unassigned Requests Card -->
                     <div class="metric-card card-unassigned">
                         <div class="card-content">
-                            <div class="card-title">Unassigned Requests</div>
+                            <div class="card-title">
+                                Unassigned Requests
+                                <span class="info-tooltip">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="tooltip-content">
+                                        Requests not assigned to any team member yet
+                                    </span>
+                                </span>
+                            </div>
                             <div class="card-value">
                                 <t t-esc="formatNumber(metrics.unassigned_requests)"/>
                             </div>
@@ -102,31 +127,47 @@
                                 new today
                             </div>
                         </div>
+                        <div class="card-wave"></div>
                     </div>
 
                     <!-- Past Due -->
-<!--                    Need to add date deadline of requests first -->
-<!--                    <div class="metric-card card-past-due">-->
-<!--                        <div class="card-icon">-->
-<!--                            <i class="fa fa-exclamation-triangle"></i>-->
-<!--                        </div>-->
-<!--                        <div class="card-content">-->
-<!--                            <div class="card-title">Past Due</div>-->
-<!--                            <div class="card-value">-->
-<!--                                <t t-esc="formatNumber(metrics.requests_past_due)"/>-->
-<!--                            </div>-->
-<!--                            <div class="card-trend urgent">-->
-<!--                                <i class="fa fa-exclamation"></i>-->
-<!--                                Needs attention-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="card-wave"></div>-->
-<!--                    </div>-->
+                    <div class="metric-card card-past-due">
+                        <div class="card-icon">
+                            <i class="fa fa-exclamation-triangle"></i>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">
+                                Past Due
+                                <span class="info-tooltip">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="tooltip-content">
+                                        Requests that have exceeded their due date
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="card-value">
+                                <t t-esc="formatNumber(metrics.requests_past_due)"/>
+                            </div>
+                            <div class="card-trend urgent">
+                                <i class="fa fa-exclamation"></i>
+                                Needs attention
+                            </div>
+                        </div>
+                        <div class="card-wave"></div>
+                    </div>
 
                     <!-- Created Today Card -->
                     <div class="metric-card card-created">
                         <div class="card-content">
-                            <div class="card-title">Created Today</div>
+                            <div class="card-title">
+                                Created Today
+                                <span class="info-tooltip">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="tooltip-content">
+                                        New requests created in the last 24 hours
+                                    </span>
+                                </span>
+                            </div>
                             <div class="card-value">
                                 <t t-esc="formatNumber(metrics.requests_created_today)"/>
                             </div>
@@ -139,12 +180,21 @@
                                 <t t-esc="metrics.trends.created_today.comparison"/>
                             </div>
                         </div>
+                        <div class="card-wave"></div>
                     </div>
 
                     <!-- Completed Week Card -->
                     <div class="metric-card card-completed">
                         <div class="card-content">
-                            <div class="card-title">Completed This Week</div>
+                            <div class="card-title">
+                                Completed This Week
+                                <span class="info-tooltip">
+                                    <i class="fa fa-info-circle"></i>
+                                    <span class="tooltip-content">
+                                        Requests closed since the start of current week
+                                    </span>
+                                </span>
+                            </div>
                             <div class="card-value">
                                 <t t-esc="formatNumber(metrics.requests_completed_week)"/>
                             </div>
@@ -157,6 +207,7 @@
                                 <t t-esc="metrics.trends.completed_week.comparison"/>
                             </div>
                         </div>
+                        <div class="card-wave"></div>
                     </div>
                 </div>
 
@@ -293,38 +344,46 @@
                             </div>
                             <div class="card-body">
                                 <div class="metrics-container">
+                                    <!-- Avg Resolution Time -->
                                     <div class="metric">
                                         <div class="metric-icon">
-                                            <i class="fa fa-clock"></i>
+                                            <i class="fa fa-clock-o"></i>
                                         </div>
                                         <div class="metric-content">
                                             <div class="metric-title">Avg Resolution Time</div>
                                             <div class="metric-value">
-                                                <t
-                                                        t-esc="Math.round(state.dashboardData.performance.avg_resolution_time)"/>
-                                                hrs
+                                                <t t-esc="state.dashboardData.performance.avg_resolution_time_minutes"/>
+                                                <t t-if="state.dashboardData.performance.avg_resolution_time_minutes === 1">
+                                                    min
+                                                </t>
+                                                <t t-else="">mins</t>
                                             </div>
                                             <div class="metric-progress">
                                                 <div class="progress-bar"
-                                                     t-att-style="'width: ' + Math.min(100, (state.dashboardData.performance.avg_resolution_time / 24) * 100) + '%;'"></div>
+                                                     t-att-style="'width: ' + Math.min(100, (state.dashboardData.performance.avg_resolution_time / 24) * 100) + '%;'">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
 
+                                    <!-- Max Resolution Time -->
                                     <div class="metric">
                                         <div class="metric-icon">
-                                            <i class="fa fa-stopwatch"></i>
+                                            <i class="fa fa-clock-o"></i>
                                         </div>
                                         <div class="metric-content">
                                             <div class="metric-title">Max Resolution Time</div>
                                             <div class="metric-value">
-                                                <t
-                                                        t-esc="Math.round(state.dashboardData.performance.max_resolution_time)"/>
-                                                hrs
+                                                <t t-esc="state.dashboardData.performance.max_resolution_time_minutes"/>
+                                                <t t-if="state.dashboardData.performance.max_resolution_time_minutes === 1">
+                                                    min
+                                                </t>
+                                                <t t-else="">mins</t>
                                             </div>
                                             <div class="metric-progress">
                                                 <div class="progress-bar"
-                                                     t-att-style="'width: ' + Math.min(100, (state.dashboardData.performance.max_resolution_time / 72) * 100) + '%;'"></div>
+                                                     t-att-style="'width: ' + Math.min(100, (state.dashboardData.performance.max_resolution_time / 72) * 100) + '%;'">
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
@@ -336,34 +395,30 @@
                                         Top Performers
                                     </h4>
                                     <div class="performers-list">
-                                        <t
-                                                t-foreach="state.dashboardData.performance.employee_performance"
-                                                t-as="emp"
-                                                t-key="emp.employee_id">
+                                        <t t-foreach="state.dashboardData.performance.employee_performance"
+                                           t-as="emp"
+                                           t-key="emp.employee_id">
                                             <div class="performer">
                                                 <div class="performer-avatar">
-                                                    <div class="avatar-circle">
-                                                        <t t-esc="emp.employee_id.image_url"/>
-                                                    </div>
+                                                    <img t-att-src="emp.image_url" class="avatar-circle"/>
                                                 </div>
                                                 <div class="performer-details">
-                                                    <div class="performer-name"
-                                                         t-esc="emp.employee_id"/>
+                                                    <div class="performer-name" t-esc="emp.employee_name"/>
                                                     <div class="performer-stats">
                                                         <span class="requests"
-                                                              t-esc="emp.request_count + ' requests'"/>
-                                                        <span class="completion-rate">92% completion</span>
+                                                              t-esc="emp.request_count + ' completed'"/>
+                                                        <span class="completion-rate"
+                                                              t-esc="emp.completion_rate + '% completion'"/>
                                                     </div>
                                                 </div>
                                                 <div class="performer-rating">
                                                     <div class="stars">
-                                                        <i class="fa fa-star"></i>
-                                                        <i class="fa fa-star"></i>
-                                                        <i class="fa fa-star"></i>
-                                                        <i class="fa fa-star"></i>
-                                                        <i class="fa fa-star-half-alt"></i>
+                                                        <t t-foreach="Array.from({length: 5}, (_, i) => i)"
+                                                           t-as="index" t-key="index">
+                                                            <i t-att-class="'fa ' + ((emp.rating >= index+1) ? 'fa-star' :(emp.rating > index) ? 'fa-star-half-alt' : 'fa-star-o')"/>
+                                                        </t>
                                                     </div>
-                                                    <div class="score">4.5</div>
+                                                    <div class="score" t-esc="emp.rating.toFixed(1)"/>
                                                 </div>
                                             </div>
                                         </t>
@@ -418,14 +473,14 @@
                                                             t-foreach="state.dashboardData.operational.recently_completed"
                                                             t-as="request" t-key="request.id">
                                                         <div class="table-row"
-                                                             t-on-click="() => this.openRequest(request.id, 'request.request')">
+                                                             t-on-click="() => this.openRequest(request.id, 'getmo.request.request')">
                                                             <div class="col" t-esc="request.name"/>
                                                             <div class="col"
                                                                  t-esc="request.date_request"/>
                                                             <div class="col"
                                                                  t-esc="request.date_closed"/>
                                                             <div class="col"
-                                                                 t-esc="request.assigned_to_id"/>
+                                                                 t-esc="request.assigned_to_name"/>
                                                         </div>
                                                     </t>
                                                 </div>
@@ -457,7 +512,7 @@
                                                                 t-foreach="state.dashboardData.operational.pending_assignments"
                                                                 t-as="re" t-key="re.id">
                                                             <div class="table-row"
-                                                                 t-on-click="() => this.openRequest(re.id, 'request.request')">
+                                                                 t-on-click="() => this.openRequest(re.id, 'getmo.request.request')">
                                                                 <div class="col" t-esc="re.name"/>
                                                                 <div class="col"
                                                                      t-esc="re.date_request"/>
@@ -515,14 +570,14 @@
                                                                 t-foreach="state.dashboardData.operational.overdue_requests"
                                                                 t-as="r" t-key="r.id">
                                                             <div class="table-row"
-                                                                 t-on-click="() => this.openRequest(r.id, 'request.request')">
+                                                                 t-on-click="() => this.openRequest(r.id, 'getmo.request.request')">
                                                                 <div class="col" t-esc="r.name"/>
                                                                 <div class="col"
                                                                      t-esc="r.date_request"/>
                                                                 <div class="col overdue-date"
                                                                      t-esc="r.date_closed"/>
                                                                 <div class="col"
-                                                                     t-esc="r.assigned_to_id"/>
+                                                                     t-esc="r.assigned_to_name"/>
                                                             </div>
                                                         </t>
                                                     </div>
@@ -536,7 +591,6 @@
                     </div>
                 </div>
 
-                <!-- Configuration Overview -->
                 <div class="dashboard-section">
                     <h2 class="section-title">
                         <i class="fa fa-cog"></i>
@@ -553,12 +607,13 @@
                             </div>
                             <div class="card-body">
                                 <div class="workload-chart">
-                                    <div class="chart-container" id="workloadChart"></div>
+                                    <div class="chart-container">
+                                        <canvas id="workloadBarChart"></canvas>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        <!-- Request Types -->
                         <div class="configuration-card">
                             <div class="card-header">
                                 <i class="fa fa-list-alt"></i>
@@ -567,34 +622,44 @@
                             <div class="card-body">
                                 <div class="types-table">
                                     <div class="table-header">
-                                        <div class="col">Type</div>
-                                        <div class="col">Count</div>
-                                        <div class="col">Responsible</div>
+                                        <div class="col">Service</div>
+                                        <div class="col">Requests Count</div>
+                                        <div class="col">Employees Responsible For this Service</div>
                                     </div>
                                     <div class="table-body">
-                                        <t
-                                                t-foreach="state.dashboardData.config_overview.request_types"
-                                                t-as="type"
-                                                t-key="type.id">
+                                        <t t-foreach="state.dashboardData.config_overview.request_types"
+                                           t-as="type"
+                                           t-key="type.id">
                                             <div class="table-row">
                                                 <div class="col" t-esc="type.name"/>
-                                                <div class="col"
-                                                     t-esc="formatNumber(type.request_count)"/>
+                                                <div class="col" t-esc="formatNumber(type.request_count)"/>
                                                 <div class="col">
-                                                    <!--                                                    <div class="responsible-team">-->
-                                                    <!--                                                        <t
-                                                    t-foreach="type.responsible_employees_ids"
-                                                    t-as="empl" t-key="empl[0]">-->
-                                                    <!--                                                            <div class="team-member">-->
-                                                    <!--                                                                <div class="avatar-circle small">-->
-                                                    <!--&lt;!&ndash;
-                                                    <t t-esc="emp[1].charAt(0)"/>&ndash;&gt;-->
-                                                    <!--                                                                </div>-->
-                                                    <!--                                                                <span class="member-name"
-                                                    t-esc="empl[1]"/>-->
-                                                    <!--                                                            </div>-->
-                                                    <!--                                                        </t>-->
-                                                    <!--                                                    </div>-->
+                                                    <div class="responsible-team">
+                                                        <!-- Show first 5 employees with avatars -->
+                                                        <t t-foreach="type.responsible_employees.slice(0, 5)"
+                                                           t-as="empl"
+                                                           t-key="empl.id">
+                                                            <div class="team-member">
+                                                                <div class="avatar-circle small">
+                                                                    <img t-att-src="empl.image_url"
+                                                                         t-att-alt="empl.name"
+                                                                         class="avatar-image"/>
+                                                                </div>
+                                                                <span class="member-name" t-esc="empl.name"/>
+                                                            </div>
+                                                        </t>
+
+                                                        <!-- Show +X more indicator if needed -->
+                                                        <t t-if="type.responsible_employees.length > 5">
+                                                            <div class="team-member more">
+                                                                <div class="avatar-circle small more">
+                                                                    +
+                                                                    <t t-esc="type.responsible_employees.length - 5"/>
+                                                                </div>
+                                                                <span class="member-name">more</span>
+                                                            </div>
+                                                        </t>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </t>

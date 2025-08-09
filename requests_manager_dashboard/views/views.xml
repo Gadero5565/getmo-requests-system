@@ -7,10 +7,10 @@
             <field name="tag">requests_manager_dashboard</field>
         </record>
 
-        <menuitem id="menu_requests_managers_dashboard"
-                  name="Requests Manager Dashboard"
+        <menuitem id="menu_requests_technician_specialist_dashboard"
+                  name="Requests Technician / Specialist Dashboard"
                   action="action_requests_managers_dashboard"
-                  groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin,master_project_requests.group_request_technician_specialist"
+                  groups="master_project_requests.group_request_technician_specialist"
                   sequence="10"/>
 
         <record id="action_requests_managers_dashboard_extended" model="ir.actions.client">
@@ -18,11 +18,22 @@
             <field name="tag">requests_manager_dashboard_extended</field>
         </record>
 
-        <menuitem id="menu_requests_managers_dashboard_extended"
-                  name="Requests Manager Dashboard Extended"
+        <menuitem id="menu_requests_managers_dashboard"
+                  name="Requests Managers Dashboard"
                   action="action_requests_managers_dashboard_extended"
-                  groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin,master_project_requests.group_request_technician_specialist"
+                  groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin"
                   sequence="20"/>
+
+        <record id="action_requests_users_dashboard" model="ir.actions.client">
+            <field name="name">Requests Users Dashboard</field>
+            <field name="tag">requests_user_dashboard</field>
+        </record>
+
+        <menuitem id="menu_requests_users_dashboard"
+                  name="My Dashboard"
+                  action="action_requests_users_dashboard"
+                  groups="master_project_requests.group_request_user"
+                  sequence="-1"/>
 
     </data>
 </odoo>

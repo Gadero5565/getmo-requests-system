@@ -63,6 +63,10 @@ class KnapsackLog(models.Model):
         compute='_compute_mermaid_flowchart',
         store=True
     )
+    cron_mermaid_flowchart = fields.Text(
+        string='Cron Mermaid Flowchart',
+        help='Mermaid flowchart showing the complete cron assignment process including priority sorting'
+    )
 
     @api.depends('decision_steps')
     def _compute_mermaid_flowchart(self):

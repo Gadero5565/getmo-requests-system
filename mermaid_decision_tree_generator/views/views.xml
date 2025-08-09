@@ -6,6 +6,11 @@
             <field name="tag">knapsack_flowchart</field>
         </record>
 
+        <record id="action_knapsack_flowchart_cron_view" model="ir.actions.client">
+            <field name="name">Knapsack Flowchart Cron</field>
+            <field name="tag">knapsack_flowchart_cron</field>
+        </record>
+
         <record id="view_knapsack_assignment_log_form_inherit" model="ir.ui.view">
             <field name="name">view.knapsack.assignment.log.form.inherit</field>
             <field name="model">knapsack.assignment.log</field>
@@ -17,6 +22,13 @@
                                 name="%(action_knapsack_flowchart_view)d"
                                 string="View Flowchart"
                                 class="btn-primary"
+                                context="{'log_id': active_id}"/>
+
+                        <button type="action"
+                                name="%(action_knapsack_flowchart_cron_view)d"
+                                string="View Cron Flowchart"
+                                class="btn-primary"
+                                attrs="{'invisible': [('cron_mermaid_flowchart', '=', False)]}"
                                 context="{'log_id': active_id}"/>
                     </header>
                 </xpath>

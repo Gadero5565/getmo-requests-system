@@ -1,299 +1,342 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <templates>
     <t t-name="dashboard_manager_requests.RequestsManagerDashboard" owl="1">
-        <div class="dashboard-container">
-            <!-- Header -->
-            <div class="dashboard-header">
-                <div class="header-content">
-                    <h2 class="dashboard-title">Manager Dashboard</h2>
-                    <div class="user-profile">
-                        <div class="user-info">
-                            <div class="welcome-text">Welcome,
-                                <span class="user-name">
-                                    <t t-esc="state.data.manager.name"/>
-                                </span>
+        <t t-if="state.data.is_technician">
+            <div class="dashboard-container">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div class="header-content">
+                        <h2 class="dashboard-title">Manager Dashboard</h2>
+                        <div class="user-profile">
+                            <div class="user-info">
+                                <div class="welcome-text">Welcome,
+                                    <span class="user-name">
+                                        <t t-esc="state.data.manager.name"/>
+                                    </span>
+                                </div>
+                                <div class="department">
+                                    <t t-esc="state.data.manager.department"/>
+                                </div>
                             </div>
-                            <div class="department">
-                                <t t-esc="state.data.manager.department"/>
+                            <div class="avatar">
+                                <div class="avatar-circle">
+                                    <t t-if="state.data.manager.image">
+                                        <img t-att-src="state.data.manager.image" alt="Manager Avatar"
+                                             class="avatar-image"/>
+                                    </t>
+                                    <t t-else="">
+                                        <i class="fa fa-user-circle"/>
+                                    </t>
+                                </div>
                             </div>
                         </div>
-                        <div class="avatar">
-                            <div class="avatar-circle">
-                                <t t-if="state.data.manager.image">
-                                    <img t-att-src="state.data.manager.image" alt="Manager Avatar"
-                                         class="avatar-image"/>
-                                </t>
-                                <t t-else="">
-                                    <i class="fa fa-user-circle"/>
-                                </t>
+                    </div>
+                </div>
+
+                <!-- Stats Overview Cards -->
+                <div class="stats-grid">
+                    <div class="stat-card card-total">
+                        <div class="card-icon">
+                            <i class="fa fa-list-alt"/>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">Total Requests</div>
+                            <div class="card-value">
+                                <t t-esc="state.data.statistics.total_requests"/>
+                            </div>
+                        </div>
+                        <div class="card-wave"></div>
+                    </div>
+
+                    <!-- Technician: Show Completion Rate -->
+                    <div class="stat-card card-completed">
+                        <div class="card-icon">
+                            <i class="fa fa-check-circle"/>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">Completion Rate</div>
+                            <div class="card-value">
+                                <t t-esc="state.data.performance.completion_rate"/>%
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
 
-            <!-- Stats Overview Cards -->
-            <div class="stats-grid">
-                <div class="stat-card card-total">
-                    <div class="card-icon">
-                        <i class="fa fa-list-alt"/>
+
+                    <div class="stat-card card-assigned">
+                        <div class="card-icon">
+                            <i class="fa fa-user-check"/>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">Assigned to Me</div>
+                            <div class="card-value">
+                                <t t-esc="state.data.assignments.assigned_to_me"/>
+                            </div>
+                        </div>
+                        <div class="card-wave"></div>
                     </div>
-                    <div class="card-content">
-                        <div class="card-title">Total Requests</div>
-                        <div class="card-value"><t t-esc="state.data.statistics.total_requests"/></div>
+
+                    <div class="stat-card card-pending">
+                        <div class="card-icon">
+                            <i class="fa fa-tasks"/>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">Pending Assignment</div>
+                            <div class="card-value">
+                                <t t-esc="state.data.assignments.unassigned_in_types"/>
+                            </div>
+                        </div>
+                        <div class="card-wave"></div>
                     </div>
-                    <div class="card-wave"></div>
+
+                    <div class="stat-card card-late">
+                        <div class="card-icon">
+                            <i class="fa fa-exclamation-triangle"/>
+                        </div>
+                        <div class="card-content">
+                            <div class="card-title">Late Requests</div>
+                            <div class="card-value">
+                                <t t-esc="state.data.assignments.late_requests_count"/>
+                            </div>
+                        </div>
+                        <div class="card-wave"></div>
+                    </div>
                 </div>
 
-                <div class="stat-card card-assigned">
-                    <div class="card-icon">
-                        <i class="fa fa-user-check"/>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-title">Assigned to Me</div>
-                        <div class="card-value"><t t-esc="state.data.statistics.manager_specific.assigned_to_me"/></div>
-                    </div>
-                    <div class="card-wave"></div>
-                </div>
-
-                <div class="stat-card card-pending">
-                    <div class="card-icon">
-                        <i class="fa fa-tasks"/>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-title">Pending Assignment</div>
-                        <div class="card-value"><t t-esc="state.data.assignments.unassigned_in_types"/></div>
-                    </div>
-                    <div class="card-wave"></div>
-                </div>
-
-                <div class="stat-card card-late">
-                    <div class="card-icon">
-                        <i class="fa fa-exclamation-triangle"/>
-                    </div>
-                    <div class="card-content">
-                        <div class="card-title">Late Requests</div>
-                        <div class="card-value"><t t-esc="state.data.assignments.late_requests_count"/></div>
-                    </div>
-                    <div class="card-wave"></div>
-                </div>
-            </div>
-
-            <!-- Main Content -->
-            <div class="dashboard-content">
-                <!-- Left Column -->
-                <div class="main-column">
-                    <!-- Attention Requests -->
-                    <div class="dashboard-card attention-card">
+                <!-- ASSIGNMENTS: Simplify for technicians -->
+                <t t-if="state.data.is_technician">
+                    <div class="dashboard-card assignments-card">
                         <div class="card-header">
-                            <h3 class="card-title-dark">Attention Needed</h3>
-                            <div class="badge-count"><t t-esc="state.data.attention_requests.length"/> Requests</div>
+                            <h3 class="card-title-dark">Your Assignments</h3>
+                            <div class="badge-count">
+                                <t t-esc="state.data.assignments.assigned_count"/>
+                                Requests
+                            </div>
                         </div>
                         <div class="card-body">
-                            <div class="request-list">
-                                <t t-foreach="state.data.attention_requests" t-as="request" t-key="request.id">
-                                    <div class="request-item" t-on-click="() => this.openRequest(request.id)">
-                                        <div class="request-main">
-                                            <div class="request-title">
-                                                <span class="request-name">
-                                                    <t t-esc="request.name"/>
-                                                </span>
-                                                <t t-if="request.priority">
-                                                    <span class="priority-badge"
-                                                          t-att-class="'priority-' + request.priority">
-                                                        <t t-esc="request.priority"/>
+                            <div class="assignment-list">
+                                <t t-foreach="state.data.assignments.recently_assigned" t-as="assignment"
+                                   t-key="assignment.id">
+                                    <div class="assignment-item">
+                                        <div class="assignment-name">
+                                            <t t-esc="assignment.name"/>
+                                        </div>
+                                        <div class="assignment-type">
+                                            <t t-esc="assignment.type"/>
+                                        </div>
+                                        <div class="assignment-date">
+                                            Assigned:
+                                            <t t-esc="assignment.date_assigned"/>
+                                        </div>
+                                    </div>
+                                </t>
+                            </div>
+                        </div>
+                    </div>
+                </t>
+
+                <!-- Main Content -->
+                <div class="dashboard-content">
+                    <!-- Left Column -->
+                    <div class="main-column">
+                        <!-- Attention Requests -->
+                        <div class="dashboard-card attention-card">
+                            <div class="card-header">
+                                <h3 class="card-title-dark">Attention Needed</h3>
+                                <div class="badge-count">
+                                    <t t-esc="state.data.attention_requests.length"/>
+                                    Requests
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="request-list">
+                                    <t t-foreach="state.data.attention_requests" t-as="request" t-key="request.id">
+                                        <div class="request-item" t-on-click="() => this.openRequest(request.id)">
+                                            <div class="request-main">
+                                                <div class="request-title">
+                                                    <span class="request-name">
+                                                        <t t-esc="request.name"/>
                                                     </span>
-                                                </t>
-                                            </div>
-                                            <div class="request-meta">
-                                                <span class="request-type">
-                                                    <t t-esc="request.type"/>
-                                                </span>
-                                                <span class="request-employee">
-                                                    <t t-esc="request.employee"/>
-                                                </span>
-                                                <span class="request-days">Open
-                                                    <t t-esc="request.days_open"/>
-                                                    days
-                                                </span>
-                                            </div>
-                                        </div>
-                                        <div class="request-status">
-                                            <div class="assigned-to"
-                                                 t-att-class="request.assigned_to === 'Unassigned' ? 'unassigned' : ''">
-                                                <t t-esc="request.assigned_to"/>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </t>
-                                <t t-if="state.data.attention_requests.length === 0">
-                                    <div class="empty-state">
-                                        <i class="fa fa-check-circle"/>
-                                        <p>No requests need immediate attention</p>
-                                    </div>
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Performance Metrics -->
-                    <div class="dashboard-card performance-card">
-                        <div class="card-header">
-                            <h3 class="card-title-dark">Performance Metrics</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="metrics-grid">
-                                <div class="metric-card">
-                                    <div class="metric-icon">
-                                        <i class="fa fa-clock"/>
-                                    </div>
-                                    <div class="metric-content">
-                                        <div class="metric-title">Avg. Time to Assign</div>
-                                        <div class="metric-value">
-                                            <t t-esc="state.data.performance.average_time_to_assign"/>
-                                            days
-                                        </div>
-                                        <div class="metric-progress">
-                                            <div class="progress-bar"
-                                                 t-att-style="'width: ' + Math.min(100, state.data.performance.average_time_to_assign * 20) + '%;'"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="metric-card">
-                                    <div class="metric-icon">
-                                        <i class="fa fa-check-circle"/>
-                                    </div>
-                                    <div class="metric-content">
-                                        <div class="metric-title">Avg. Time to Complete</div>
-                                        <div class="metric-value">
-                                            <t t-esc="state.data.performance.average_time_to_complete"/>
-                                            days
-                                        </div>
-                                        <div class="metric-progress">
-                                            <div class="progress-bar"
-                                                 t-att-style="'width: ' + Math.min(100, state.data.performance.average_time_to_complete * 10) + '%;'"></div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="metric-card">
-                                    <div class="metric-icon">
-                                        <i class="fa fa-chart-line"/>
-                                    </div>
-                                    <div class="metric-content">
-                                        <div class="metric-title">Resolution Rate</div>
-                                        <div class="metric-value"><t t-esc="state.data.performance.resolution_rate"/>%
-                                        </div>
-                                        <div class="metric-progress">
-                                            <div class="progress-bar"
-                                                 t-att-style="'width: ' + state.data.performance.resolution_rate + '%;'"></div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="top-performers">
-                                <h4 class="section-title">Top Performers</h4>
-                                <div class="performers-list">
-                                    <t t-foreach="state.data.performance.top_performers" t-as="performer" t-key="performer.id">
-                                        <div class="performer-item">
-                                            <div class="avatar">
-                                                <div class="avatar-circle">
-                                                    <t t-if="performer.image">
-                                                        <img t-att-src="performer.image" alt="Performer Avatar"
-                                                             class="avatar-image"/>
-                                                    </t>
-                                                    <t t-else="">
-                                                        <i class="fa fa-user-circle"/>
+                                                    <t t-if="request.priority">
+                                                        <span class="priority-badge"
+                                                              t-att-class="'priority-' + request.priority">
+                                                            <t t-esc="request.priority"/>
+                                                        </span>
                                                     </t>
                                                 </div>
+                                                <div class="request-meta">
+                                                    <span class="request-type">
+                                                        <t t-esc="request.type"/>
+                                                    </span>
+                                                    <span class="request-employee">
+                                                        <t t-esc="request.employee"/>
+                                                    </span>
+                                                    <span class="request-days">Open
+                                                        <t t-esc="request.days_open"/>
+                                                        days
+                                                    </span>
+                                                </div>
                                             </div>
-                                            <div class="performer-info">
-                                                <div class="performer-name"><t t-esc="performer.name"/></div>
-                                                <div class="performer-title">Top Performer</div>
-                                            </div>
-                                            <div class="performer-stats">
-                                                <span class="requests-count"><t t-esc="performer.requests_handled"/> requests</span>
+                                            <div class="request-status">
+                                                <div class="assigned-to"
+                                                     t-att-class="request.assigned_to === 'Unassigned' ? 'unassigned' : ''">
+                                                    <t t-esc="request.assigned_to"/>
+                                                </div>
                                             </div>
                                         </div>
                                     </t>
-                                    <t t-if="state.data.performance.top_performers.length === 0">
+                                    <t t-if="state.data.attention_requests.length === 0">
                                         <div class="empty-state">
-                                            <p>No performance data available</p>
+                                            <i class="fa fa-check-circle"/>
+                                            <p>No requests need immediate attention</p>
                                         </div>
                                     </t>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-                <!-- Right Column -->
-                <div class="sidebar-column">
-                    <!-- Stage Breakdown -->
-                    <div class="dashboard-card stages-card">
-                        <div class="card-header">
-                            <h3 class="card-title-dark">Requests by Stage</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="stages-list">
-                                <t t-foreach="Object.entries(state.data.statistics.by_stage)" t-as="stage" t-key="stage[0]">
-                                    <div class="stage-item">
-                                        <div class="stage-header">
-                                            <span class="stage-name"><t t-esc="stage[1].name"/></span>
-                                            <span class="stage-count"><t t-esc="stage[1].count"/></span>
+                        <!-- Performance Metrics -->
+                        <div class="dashboard-card performance-card">
+                            <div class="card-header">
+                                <h3 class="card-title-dark">Performance Metrics</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="metrics-grid">
+                                    <div class="metric-card">
+                                        <div class="metric-icon">
+                                            <i class="fa fa-clock"/>
                                         </div>
-                                        <div class="stage-progress">
-                                            <div class="progress-bar"
-                                                 t-att-class="{
+                                        <div class="metric-content">
+                                            <div class="metric-title">Avg. Time to Assign</div>
+                                            <div class="metric-value">
+                                                <t t-esc="state.data.performance.average_time_to_assign"/>
+                                                days
+                                            </div>
+                                            <div class="metric-progress">
+                                                <div class="progress-bar"
+                                                     t-att-style="'width: ' + Math.min(100, state.data.performance.average_time_to_assign * 20) + '%;'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="metric-card">
+                                        <div class="metric-icon">
+                                            <i class="fa fa-check-circle"/>
+                                        </div>
+                                        <div class="metric-content">
+                                            <div class="metric-title">Avg. Time to Complete</div>
+                                            <div class="metric-value">
+                                                <t t-esc="state.data.performance.average_time_to_complete"/>
+                                                days
+                                            </div>
+                                            <div class="metric-progress">
+                                                <div class="progress-bar"
+                                                     t-att-style="'width: ' + Math.min(100, state.data.performance.average_time_to_complete * 10) + '%;'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="metric-card">
+                                        <div class="metric-icon">
+                                            <i class="fa fa-chart-line"/>
+                                        </div>
+                                        <div class="metric-content">
+                                            <div class="metric-title">Resolution Rate</div>
+                                            <div class="metric-value"><t
+                                                    t-esc="state.data.performance.resolution_rate"/>%
+                                            </div>
+                                            <div class="metric-progress">
+                                                <div class="progress-bar"
+                                                     t-att-style="'width: ' + state.data.performance.resolution_rate + '%;'"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="sidebar-column">
+                        <!-- Stage Breakdown -->
+                        <div class="dashboard-card stages-card">
+                            <div class="card-header">
+                                <h3 class="card-title-dark">Requests by Stage</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="stages-list">
+                                    <t t-foreach="Object.entries(state.data.statistics.by_stage)" t-as="stage"
+                                       t-key="stage[0]">
+                                        <div class="stage-item">
+                                            <div class="stage-header">
+                                                <span class="stage-name">
+                                                    <t t-esc="stage[1].name"/>
+                                                </span>
+                                                <span class="stage-count">
+                                                    <t t-esc="stage[1].count"/>
+                                                </span>
+                                            </div>
+                                            <div class="stage-progress">
+                                                <div class="progress-bar"
+                                                     t-att-class="{
                                                     'draft': stage[0] === 'draft',
                                                     'assigned': stage[0] === 'assigned',
                                                     'in-progress': stage[0] === 'in_progress',
                                                     'done': stage[0] === 'done',
                                                     'refused': stage[0] === 'refused'
                                                 }"
-                                                 t-att-style="'width: ' + (state.data.statistics.total_requests ? (stage[1].count / state.data.statistics.total_requests * 100) : 0) + '%;'">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </t>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Category Distribution -->
-                    <div class="dashboard-card categories-card">
-                        <div class="card-header">
-                            <h3 class="card-title-dark">Requests by Category</h3>
-                        </div>
-                        <div class="card-body">
-                            <div class="categories-list">
-                                <t t-foreach="state.data.statistics.by_category" t-as="category" t-key="category.id">
-                                    <t t-if="category.count > 0">
-                                        <div class="category-item">
-                                            <div class="category-info">
-                                                <span class="category-name"><t t-esc="category.name"/></span>
-                                                <span class="category-count"><t t-esc="category.count"/></span>
-                                            </div>
-                                            <div class="category-progress">
-                                                <div class="progress-bar"
-                                                     t-att-style="'width: ' + (state.data.statistics.total_requests ? (category.count / state.data.statistics.total_requests * 100) : 0) + '%;'">
+                                                     t-att-style="'width: ' + (state.data.statistics.total_requests ? (stage[1].count / state.data.statistics.total_requests * 100) : 0) + '%;'">
                                                 </div>
                                             </div>
                                         </div>
                                     </t>
-                                </t>
-                                <t t-if="!state.data.statistics.by_category.some(c => c.count > 0)">
-                                    <div class="empty-state">
-                                        <p>No category data available</p>
-                                    </div>
-                                </t>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Category Distribution -->
+                        <div class="dashboard-card categories-card">
+                            <div class="card-header">
+                                <h3 class="card-title-dark">Requests by Category</h3>
+                            </div>
+                            <div class="card-body">
+                                <div class="categories-list">
+                                    <t t-foreach="state.data.statistics.by_category" t-as="category"
+                                       t-key="category.id">
+                                        <t t-if="category.count > 0">
+                                            <div class="category-item">
+                                                <div class="category-info">
+                                                    <span class="category-name">
+                                                        <t t-esc="category.name"/>
+                                                    </span>
+                                                    <span class="category-count">
+                                                        <t t-esc="category.count"/>
+                                                    </span>
+                                                </div>
+                                                <div class="category-progress">
+                                                    <div class="progress-bar"
+                                                         t-att-style="'width: ' + (state.data.statistics.total_requests ? (category.count / state.data.statistics.total_requests * 100) : 0) + '%;'">
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </t>
+                                    </t>
+                                    <t t-if="!state.data.statistics.by_category.some(c => c.count > 0)">
+                                        <div class="empty-state">
+                                            <p>No category data available</p>
+                                        </div>
+                                    </t>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
+
+        </t>
+        <t t-else="">
+            <div class="dashboard-container">
+                This dashboard is only for Requests Technician/Specialist
+            </div>
+        </t>
     </t>
 </templates>

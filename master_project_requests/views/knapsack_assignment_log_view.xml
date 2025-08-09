@@ -44,6 +44,7 @@
                         <field name="decision_steps" widget="ace" />
                         <field name="knapsack_decision_tree" widget="ace" />
                         <field name="mermaid_flowchart" widget="ace" />
+                        <field name="cron_mermaid_flowchart" widget="ace" />
                     </group>
                 </sheet>
             </form>

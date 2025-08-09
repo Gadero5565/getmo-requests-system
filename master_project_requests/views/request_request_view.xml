@@ -14,7 +14,7 @@
                                 string="Send"
                                 type="object"
                                 class="oe_highlight"
-                                attrs="{'invisible': [('stage_name', '!=', 'draft')]}"/>
+                                attrs="{'invisible': ['|',('is_request_assigned', '=', False),('stage_name', '!=', 'draft')]}"/>
 
                         <button name="action_start_progress"
                                 string="Start Progress"
@@ -47,6 +47,7 @@
                     <sheet>
                         <!-- Hidden fields -->
                         <group invisible="1">
+                            <field name="is_request_assigned"/>
                             <field name="stage_name"/>
                             <field name="is_stage_done"/>
                             <field name="attachment_setting_state"/>
@@ -55,6 +56,13 @@
                             <field name="user_can_edit_fields"/>
                             <field name="can_manager_assign"/>
                         </group>
+
+                        <div class="alert alert-warning text-center" role="alert"
+                             attrs="{'invisible': [('is_request_assigned', '!=', False)]}">
+                            <i class="fa fa-exclamation-triangle mr-2"/>
+                            Your Request hasn't been assigned to an employee yet. You can contact your manager or await
+                            until it is auto assigned.
+                        </div>
 
                         <!-- Title Section -->
                         <div name="title" class="request-header">
@@ -120,7 +128,7 @@
                             </div>
                             <!-- Assigned To -->
                             <div class="col-lg-4"
-                                 groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin">
+                                 groups="master_project_requests.group_request_manager,master_project_requests.group_request_service_admin,master_project_requests.group_request_technician_specialist">
                                 <div class="request-card h-100">
                                     <div class="card-body">
                                         <div class="form-group">
@@ -249,9 +257,11 @@
                             </page>
                             <page name="developer_page" string="Developer Page" groups="base.group_system">
                                 <group>
+                                    <field name="is_past_due" widget="boolean_toggle"/>
                                     <field name="date_request"/>
                                     <field name="date_assigned"/>
                                     <field name="date_closed"/>
+                                    <field name="create_date"/>
                                 </group>
                             </page>
                         </notebook>

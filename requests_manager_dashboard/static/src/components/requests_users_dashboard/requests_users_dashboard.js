@@ -3,8 +3,8 @@ import { Component, useState, onWillStart } from "@odoo/owl";
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
 
-class RequestsManagerDashboard extends Component {
-    static template = "dashboard_manager_requests.RequestsManagerDashboard";
+class RequestsUserDashboard extends Component {
+    static template = "dashboard_user_requests.RequestsUserDashboard";
 
     setup() {
         this.rpc = useService("rpc");
@@ -17,7 +17,7 @@ class RequestsManagerDashboard extends Component {
 
         onWillStart(async () => {
             try {
-                this.state.data = await this.rpc("/api/technician/specialist/dashboard", {});
+                this.state.data = await this.rpc("/api/users/dashboard", {});
                 this.state.loading = false;
             } catch (error) {
                 this.state.error = error;
@@ -29,7 +29,7 @@ class RequestsManagerDashboard extends Component {
     openRequest(requestId) {
         this.action.doAction({
             type: 'ir.actions.act_window',
-            res_model: 'request.request',
+            res_model: 'getmo.request.request',
             res_id: requestId,
             views: [[false, 'form']],
             target: 'current'
@@ -37,4 +37,4 @@ class RequestsManagerDashboard extends Component {
     }
 }
 
-registry.category("actions").add("requests_manager_dashboard", RequestsManagerDashboard);
+registry.category("actions").add("requests_user_dashboard", RequestsUserDashboard);
