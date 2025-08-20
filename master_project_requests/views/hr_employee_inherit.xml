@@ -8,8 +8,11 @@
                 <xpath expr="//notebook" position="inside">
                     <page string="Services" groups='master_project_requests.group_request_manager'>
                         <group>
-                            <field name="daily_capacity" widget="float_Time" string="Daily Capacity (hours)"/>
-                            <field name="current_workload" widget="float_Time" string="Current Workload (hours)"/>
+                            <field name="daily_capacity" widget="float_time" string="Daily Capacity (hours)"/>
+                            <field name="current_workload" widget="float_time" string="Current Workload (hours)" force_save="1"/>
+                        </group>
+                        <group>
+                            <field name="assigned_requests"/>
                         </group>
                     </page>
                 </xpath>

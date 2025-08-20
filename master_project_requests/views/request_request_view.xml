@@ -232,6 +232,7 @@
                                                 name="get_request_as_pdf"
                                                 string="Generate PDF"
                                                 class="btn-custom btn-primary"
+                                                attrs="{'invisible':[('user_can_edit_fields', '=', False)]}"
                                                 icon="fa-file-pdf-o"/>
                                     </div>
                                     <div class="card-body">

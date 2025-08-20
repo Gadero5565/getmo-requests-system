@@ -7,24 +7,26 @@ class HrEmployee(models.Model):
     # Maximum workload capacity (hours per day)
     daily_capacity = fields.Float(
         string='Daily Capacity (hours)',
-        default=8.0
+        default=8.0,store =True
     )
 
     # Current workload (computed field)
     current_workload = fields.Float(
         string='Current Workload (hours)',
-        compute='_compute_current_workload'
+        compute='_compute_current_workload',store =True
     )
 
+    assigned_requests = fields.One2many('getmo.request.request', 'assigned_to_id', 'Assigned Requests')
+
+    @api.depends('assigned_requests')
+    @api.onchange('assigned_requests')
     def _compute_current_workload(self):
         for employee in self:
-            requests = self.env['getmo.request.request'].search([
-                ('assigned_to_id', '=', employee.id),
-                ('stage_id.stage_type', 'not in', ['done', 'refused'])
-            ])
-            employee.current_workload = sum(
-                request.estimated_duration for request in requests
+            # Filter in Python instead of search, for efficiency with the One2many
+            active_requests = employee.assigned_requests.filtered(
+                lambda r: r.stage_id.stage_type not in ['done', 'refused']
             )
+            employee.current_workload = sum(request.estimated_duration for request in active_requests)
 
 
 class HrEmployeePublic(models.Model):

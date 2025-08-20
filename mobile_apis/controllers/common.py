@@ -1,4 +1,8 @@
+import html
+import re
+
 from odoo.http import request
+
 
 def empty_response():
     return {
@@ -8,6 +12,7 @@ def empty_response():
         "data": [],
     }
 
+
 def bad_params_template(param_name,data=[]):
     return {
         "status": "failure",
@@ -15,6 +20,7 @@ def bad_params_template(param_name,data=[]):
         "msg": f"Make sure the {param_name} parameter is sent appropriately.",
         "data": data,
     }
+
 
 def error_template(error_string):
     return {
@@ -24,6 +30,7 @@ def error_template(error_string):
         "data": {},
     }
 
+
 def success_template(data):
     return {
         "status": "success",
@@ -31,6 +38,7 @@ def success_template(data):
         "msg": 'Operation accomplished successfully',
         "data": data,
     }
+
 
 def auth_failed_template(data=[]):
     return {
@@ -40,6 +48,7 @@ def auth_failed_template(data=[]):
         "data": data,
     }
 
+
 def invalid_sec_token():
     return {
         "status": "error",
@@ -48,6 +57,7 @@ def invalid_sec_token():
         "data": []
     }
 
+
 def process_image_url(record_id, model_name, image_field=None):
     """Generate proper image URL for any model"""
     web_base_url = request.env['ir.config_parameter'].sudo().get_param('web.base.url')
@@ -55,3 +65,22 @@ def process_image_url(record_id, model_name, image_field=None):
         return f'{web_base_url}web/image/{model_name}/{record_id or 0}/{image_field}'
     else:
         return f'{web_base_url}web/image/{model_name}/{record_id or 0}/image_1920'
+
+
+def check_int_str_val(val):
+    if isinstance(val, int):
+        int_val = val
+        return int_val
+    elif isinstance(val, str) and val.isdigit():
+        int_val = int(val)
+        return int_val
+
+
+def convert_to_plain_text(escaped_html):
+    if not escaped_html:
+        return ""
+    # Unescape HTML entities (e.g., &lt; becomes <)
+    unescaped = html.unescape(escaped_html)
+    # Remove all HTML tags using regex
+    clean_text = re.sub(r'<[^>]*>', '', unescaped)
+    return clean_text

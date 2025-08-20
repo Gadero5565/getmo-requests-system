@@ -6,7 +6,6 @@ import base64
 import logging
 _logger = logging.getLogger(__name__)
 
-
 class Request(models.Model):
     _name = 'getmo.request.request'
     _description = 'Employees Requests'
@@ -62,8 +61,7 @@ class Request(models.Model):
     )
     estimated_duration = fields.Float(
         string='Estimated Duration (hours)',
-        readonly=True,
-        states={'new': [('readonly', False)]}
+        related="type_id.estimated_duration",
     )
     date_request = fields.Datetime(
         'Request Date',
@@ -358,49 +356,6 @@ class Request(models.Model):
             self.env['knapsack.assignment.log'].create(log_vals)
 
         return request
-
-    # Methods can be used for intelligent scheduling
-    # 1- First-Come, First-Served (FCFS)
-    # def create(self, vals):
-    #     # ... existing sequence logic ...
-    #     if not vals.get('assigned_to_id') and 'type_id' in vals:
-    #         request_type = self.env['request.type'].browse(vals['type_id'])
-    #         employees = request_type.responsible_employees_ids
-    #         if employees:
-    #             # Get employee who was assigned their last task longest ago
-    #             oldest_assignment = self.env['request.request'].search(
-    #                 [('assigned_to_id', 'in', employees.ids)],
-    #                 order='date_assigned asc',
-    #                 limit=1
-    #             )
-    #             vals['assigned_to_id'] = oldest_assignment.assigned_to_id.id
-    #     # ... rest of create ...
-    # 2- Shortest Job First (SJF)
-    # First add avg_duration to hr.employee
-    #     class HrEmployee(models.Model):
-    #         _inherit = 'hr.employee'
-    #
-    #         avg_request_duration = fields.Float(
-    #             'Avg. Duration (hours)',
-    #             compute='_compute_avg_duration'
-    #         )
-    #
-    #         def _compute_avg_duration(self):
-    #             for emp in self:
-    #                 requests = self.env['request.request'].search([
-    #                     ('assigned_to_id', '=', emp.id),
-    #                     ('date_closed', '!=', False)
-    #                 ])
-    #                 total_hours = 0
-    #                 for r in requests:
-    #                     total_hours += (r.date_closed - r.date_assigned).total_seconds() / 3600
-    #                 emp.avg_request_duration = total_hours / len(requests) if requests else 0
-    #
-    #     # Then in request creation:
-    #     vals['assigned_to_id'] = min(
-    #         employees,
-    #         key=lambda e: e.avg_request_duration
-    #     ).id
 
     #  Custom Methods
     # Used This For Knowing when stage is dene
@@ -726,13 +681,10 @@ class Request(models.Model):
                     )
                     # Update workload locally
                     workloads[best_employee.id] += request.estimated_duration
-                    assigned_stage = self.env['getmo.request.type.stage'].search([('stage_type', '=', 'assigned')],
-                                                                                 limit=1)
                     # Assign request
                     request.write({
                         'assigned_to_id': best_employee.id,
                         'date_assigned': fields.Datetime.now(),
-                        'stage_id': assigned_stage,
                     })
                     request_flow.append(f"    Assign{request.id}[\"ASSIGNED TO {best_employee.name}\"]")
                     request_flow.append(f"    Emp{best_employee.id}Req{request.id} --> Assign{request.id}")

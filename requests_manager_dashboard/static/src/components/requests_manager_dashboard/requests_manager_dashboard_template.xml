@@ -103,7 +103,7 @@
                 </div>
 
                 <!-- ASSIGNMENTS: Simplify for technicians -->
-                <t t-if="state.data.is_technician">
+<!--                <t t-if="state.data.is_technician">-->
                     <div class="dashboard-card assignments-card">
                         <div class="card-header">
                             <h3 class="card-title-dark">Your Assignments</h3>
@@ -132,7 +132,7 @@
                             </div>
                         </div>
                     </div>
-                </t>
+<!--                </t>-->
 
                 <!-- Main Content -->
                 <div class="dashboard-content">

@@ -111,21 +111,43 @@ class RequestDashboardController(http.Controller):
 
     def _get_technician_performance(self, employee):
         Request = request.env['getmo.request.request'].sudo()
-        completed_requests = Request.search([
-            ('assigned_to_id', '=', employee.id),
-            ('date_closed', '!=', False)
-        ])
 
-        data = {
-            "completion_rate": round(
-                len(completed_requests) / max(1, len(Request.search([('assigned_to_id', '=', employee.id)]))) * 100),
-            "avg_completion_time": self._calc_avg_time(
-                completed_requests,
-                lambda r: (r.date_closed - r.date_assigned).total_seconds() / 86400
-            ) if completed_requests else 0
+        # Get all requests assigned to the technician
+        assigned_requests = Request.search([('assigned_to_id', '=', employee.id)])
+
+        # Get completed requests
+        completed_requests = assigned_requests.filtered(lambda r: r.date_closed)
+
+        # Calculate Resolution Rate (Completion Rate)
+        resolution_rate = round(
+            (len(completed_requests) / len(assigned_requests) * 100) if assigned_requests else 0
+        )
+
+        # Calculate Average Time to Complete (in days)
+        avg_completion_time = 0
+        if completed_requests:
+            total_seconds = sum(
+                (r.date_closed - r.date_assigned).total_seconds()
+                for r in completed_requests
+                if r.date_assigned and r.date_closed
+            )
+            avg_completion_time = round(total_seconds / len(completed_requests) / 86400, 1)  # Convert to days
+
+        # Calculate Average Time to Assign (in days)
+        avg_assign_time = 0
+        if assigned_requests:
+            total_assign_seconds = sum(
+                (r.date_assigned - r.create_date).total_seconds()
+                for r in assigned_requests
+                if r.date_assigned
+            )
+            avg_assign_time = round(total_assign_seconds / len(assigned_requests) / 86400, 1)  # Convert to days
+
+        return {
+            "resolution_rate": resolution_rate,
+            "average_time_to_complete": avg_completion_time,
+            "average_time_to_assign": avg_assign_time
         }
-
-        return data
 
     @http.route('/api/users/dashboard', type='json', auth='user', methods=['POST'], cors='*')
     def combined_user_dashboard(self, **kwargs):

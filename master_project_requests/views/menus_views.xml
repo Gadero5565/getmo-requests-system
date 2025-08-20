@@ -4,7 +4,7 @@
     <menuitem id="menu_requests_root"
               name="Requests"
               sequence="10"
-              groups="master_project_requests.group_request_user"/>
+              groups="master_project_requests.group_request_user,master_project_requests.group_request_manager"/>
 
     <!-- ========== Requests Management Submenu ========== -->
     <menuitem id="menu_requests_management"
@@ -149,6 +149,18 @@
               name="Knapsack Assignment Logs"
               parent="menu_requests_technical"
               action="action_knapsack_log"
+              sequence="20"/>
+
+    <record id="action_algorithm_log" model="ir.actions.act_window">
+        <field name="name">Algorithm Logs</field>
+        <field name="res_model">getmo.algorithm.log</field>
+        <field name="view_mode">tree,form</field>
+    </record>
+
+    <menuitem id="menu_algorithm_log"
+              name="Algorithm Logs"
+              parent="menu_requests_technical"
+              action="action_algorithm_log"
               sequence="20"/>
 
 </odoo>

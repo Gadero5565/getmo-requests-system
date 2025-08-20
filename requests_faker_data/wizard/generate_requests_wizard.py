@@ -61,13 +61,13 @@ class GenerateRequestsWizard(models.TransientModel):
         Faker.seed(0)  # For consistent results
 
         # Get all employees for random assignment
-        employees = self.env['hr.employee'].search([('child_ids', '=', False)])
+        employees = self.env['hr.employee'].search([('id', 'in', [46, 47, 45])])
         if not employees:
             raise UserError(_("No employees found in the system. Please create some employees first."))
 
         # Get all stages
-        stages = self.env['getmo.request.type.stage'].search([])
-        if not stages:
+        stage = self.env['getmo.request.type.stage'].search([('stage_type', '=', 'draft')], limit=1)
+        if not stage:
             raise UserError(_("No stages found for request types. Please configure stages first."))
 
         # Prepare priorities based on distribution
@@ -105,41 +105,17 @@ class GenerateRequestsWizard(models.TransientModel):
                 # Random employee (excluding the admin user's employee if needed)
                 employee = random.choice(employees)
 
-                # Random stage if enabled
-                if self.stage_distribution:
-                    stage = random.choice(stages)
-                    # For done stages, ensure we have a result text
-                    result_text = fake.paragraph() if stage.stage_type == 'done' else False
-                    # For assigned/in_progress/done stages, assign someone
-                    assigned_to = random.choice(employees) if stage.stage_type in ['assigned', 'in_progress',
-                                                                                   'done'] else False
-                    date_assigned = date_request if assigned_to and stage.stage_type in ['assigned', 'in_progress',
-                                                                                         'done'] else False
-                    date_closed = fields.Datetime.add(date_request, days=random.randint(1,
-                                                                                        30)) if stage.stage_type == 'done' else False
-                else:
-                    stage = stages.filtered(lambda s: s.stage_type == 'draft')
-                    result_text = False
-                    assigned_to = False
-                    date_assigned = False
-                    date_closed = False
-
                 # Random priority
                 priority = random.choices(priorities, weights=priority_weights, k=1)[0]
 
                 request_vals.append({
-                    'name': self.type_id.sequence_id.next_by_id() if self.type_id.sequence_id else f"REQ-{batch * batch_size + i + 1}",
                     'request_text': f"<p>{fake.paragraph()}</p><p>{fake.paragraph()}</p>",
                     'type_id': self.type_id.id,
                     'category_id': self.category_id.id,
                     'stage_id': stage.id,
                     'priority': priority,
                     'employee_id': employee.id,
-                    'assigned_to_id': assigned_to.id if assigned_to else False,
                     'date_request': date_request,
-                    'date_assigned': date_assigned,
-                    'date_closed': date_closed,
-                    'result_text': f"<p>{result_text}</p>" if result_text else False,
                 })
 
             # Create the batch
